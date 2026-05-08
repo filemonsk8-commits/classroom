@@ -16,48 +16,46 @@
         }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
         
+        /* LOGIN */
         .login-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--primary); }
         .login-card { background: var(--white); padding: 30px; border-radius: 15px; width: 300px; text-align: center; }
 
+        /* NAVEGAÇÃO */
         nav { background: var(--white); padding: 10px; display: flex; gap: 10px; position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid #e2e8f0; overflow-x: auto; }
-        .nav-btn { background: #e2e8f0; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; }
+        .nav-btn { background: #e2e8f0; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: 0.2s; }
+        .nav-btn:hover { cursor: pointer; opacity: 0.8; }
         .nav-btn.active { background: var(--accent); color: white; }
 
         .container { padding: 15px; max-width: 950px; margin: 0 auto; }
-        .card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; position: relative; }
+        .card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .hidden { display: none; }
 
-        /* AJUSTE DO CALENDÁRIO PARA NÃO ATROPELAR */
-        #calendar { 
-            background: white; 
-            padding: 10px; 
-            border-radius: 8px; 
-            border: 1px solid #ddd; 
-            max-width: 100%;
-            margin-bottom: 20px;
-            font-size: 0.85em; /* Diminui um pouco a fonte no mobile */
-        }
-        
-        /* Cor de destaque para dias com visto */
-        .fc-daygrid-day.has-visto { 
-            background-color: rgba(239, 68, 68, 0.2) !important; 
-            cursor: pointer; 
-        }
+        /* CALENDÁRIO */
+        #calendar { background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px; font-size: 0.85em; }
+        .fc-daygrid-day { cursor: pointer !important; } /* Mãozinha no dia */
+        .fc-daygrid-day.has-visto { background-color: rgba(239, 68, 68, 0.2) !important; }
+        .fc-button { cursor: pointer !important; } /* Mãozinha nos botões do calendário */
 
-        .table-wrapper { overflow-x: auto; border-radius: 8px; border: 1px solid #ddd; background: white; margin-top: 20px; clear: both; }
+        /* TABELA E INPUTS */
+        .table-wrapper { overflow-x: auto; border-radius: 8px; border: 1px solid #ddd; background: white; margin-top: 20px; }
         table { width: 100%; border-collapse: collapse; min-width: 400px; }
         th, td { padding: 12px 8px; border: 1px solid #eee; text-align: left; font-size: 13px; }
         th { background: #f8fafc; }
 
-        .visto-box { display: flex; align-items: center; justify-content: center; position: relative; }
-        .chk-v { width: 22px; height: 22px; accent-color: var(--success); cursor: pointer; }
+        .chk-v { width: 22px; height: 22px; accent-color: var(--success); cursor: pointer !important; } /* Mãozinha no checkbox */
 
         input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
+        select:hover { cursor: pointer; }
+
+        .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer !important; width: 100%; font-weight: bold; margin-top: 10px; transition: 0.2s; }
+        .btn:hover { filter: brightness(1.1); }
         .btn-red { background: var(--danger); }
         .btn-small { padding: 5px 8px; font-size: 11px; width: auto; margin: 0; }
 
         .header-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 15px; }
+        
+        /* Lista de Histórico */
+        .hist-item { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
@@ -65,7 +63,7 @@
 <div id="aba-login" class="login-screen">
     <div class="login-card">
         <h2>🔒 Classroom</h2>
-        <input type="password" id="senha" placeholder="Senha">
+        <input type="password" id="senha" placeholder="Senha" onkeypress="if(event.key==='Enter') logar()">
         <button class="btn" onclick="logar()">Entrar</button>
     </div>
 </div>
@@ -83,20 +81,15 @@
     <div id="sec-vistos" class="aba-content">
         <div class="card">
             <h3>📅 Registro de Vistos</h3>
-            <label>Escolha a Turma:</label>
+            <label>Turma:</label>
             <select id="v-turma" onchange="carregarCalendario()"></select>
-            
-            <p style="font-size: 12px; color: #666; margin-top: 10px;">Dias em <span style="color:red; font-weight:bold;">vermelho</span> possuem registros.</p>
-            <div id='calendar'></div>
-            
+            <div id='calendar' style="margin-top:15px;"></div>
             <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; border-left: 5px solid var(--accent);">
                 <strong>Dia Selecionado:</strong> 
                 <input type="date" id="v-data" style="width: auto;" onchange="carregarTabelaVistos()">
             </div>
-
             <div class="header-grid" id="v-headers"></div>
         </div>
-
         <div class="table-wrapper">
             <table>
                 <thead><tr id="thr-vistos"></tr></thead>
@@ -106,47 +99,50 @@
         <button class="btn" onclick="salvarVistos()">💾 Salvar Vistos</button>
     </div>
 
-    <!-- OUTRAS ABAS (Conteúdo, SIAP, Ajustes) Mantidas conforme anterior... -->
+    <!-- CONTEÚDOS -->
     <div id="sec-conteudos" class="aba-content hidden">
         <div class="card">
-            <h3>📝 Conteúdo da Aula</h3>
+            <h3>📝 Novo Conteúdo</h3>
             <input type="date" id="c-data">
-            <textarea id="c-texto" rows="3" placeholder="O que foi dado hoje?"></textarea>
+            <textarea id="c-texto" rows="3" placeholder="Descrição da aula..."></textarea>
             <div id="c-replicar" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 10px 0;"></div>
             <button class="btn" onclick="salvarConteudo()">Salvar Conteúdo</button>
         </div>
         <div class="card">
+            <h3>📖 Histórico de Aulas</h3>
             <select id="c-turma-select" onchange="listarHistoricoConteudo()"></select>
-            <div id="lista-historico-c" style="margin-top:10px;"></div>
+            <div id="lista-historico-c"></div>
         </div>
     </div>
 
+    <!-- SIAP -->
     <div id="sec-siap" class="aba-content hidden">
         <div class="card">
-            <h3>📊 Fechamento</h3>
-            <button class="btn" onclick="gerarRelatorio()">Gerar Relatório de Notas</button>
+            <h3>📊 Fechamento SIAP</h3>
+            <button class="btn" onclick="gerarRelatorio()">Calcular Notas</button>
             <button class="btn" style="background:var(--success)" onclick="exportarParaSIAP()">📋 Copiar para SIAP</button>
         </div>
         <div id="relatorio-final"></div>
     </div>
 
+    <!-- AJUSTES -->
     <div id="sec-ajustes" class="aba-content hidden">
         <div class="card">
             <h3>➕ Importar Turma</h3>
             <input type="text" id="nova-turma-nome" placeholder="NOME DA TURMA">
-            <textarea id="nova-turma-lista" rows="3" placeholder="Nomes (um por linha)"></textarea>
+            <textarea id="nova-turma-lista" rows="3" placeholder="Lista de nomes..."></textarea>
             <button class="btn" onclick="criarTurma()">Criar Turma</button>
         </div>
         <div class="card">
+            <h3>✏️ Alunos</h3>
             <select id="adj-turma" onchange="listarAlunosAdj()"></select>
             <div id="lista-adj-alunos" style="margin-top:15px; max-height: 250px; overflow-y: auto;"></div>
         </div>
-        <button class="btn btn-red" onclick="resetTotal()">🔥 RESET GERAL</button>
+        <button class="btn btn-red" onclick="resetTotal()">🔥 RESET GERAL DO SISTEMA</button>
     </div>
 </div>
 
 <script>
-    // CONFIGURAÇÃO FIREBASE (A mesma que você já usa)
     const firebaseConfig = {
         apiKey: "AIzaSyCTu2YNF6TXWGdjBtRrDW1dL5e5MoIPI4c",
         authDomain: "classroom-b14f4.firebaseapp.com",
@@ -166,7 +162,7 @@
             document.getElementById('menu').classList.remove('hidden');
             document.getElementById('app').classList.remove('hidden');
             init();
-        } else { alert("Erro!"); }
+        } else { alert("Senha Inválida!"); }
     }
 
     function mudarAba(id) {
@@ -184,27 +180,22 @@
         const hoje = new Date().toISOString().split('T')[0];
         document.getElementById('v-data').value = hoje;
         document.getElementById('c-data').value = hoje;
-        
         let hHtml = '';
         for(let i=1; i<=6; i++) hHtml += `<div><label style="font-size:10px">Tít ${i}</label><input type="text" id="h${i}" onchange="salvarHeaders()"></div>`;
         document.getElementById('v-headers').innerHTML = hHtml;
-        
         initCalendar();
         carregarMenus();
     }
 
     function initCalendar() {
-        const calendarEl = document.getElementById('calendar');
-        calendar = new FullCalendar.Calendar(calendarEl, {
+        calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
             initialView: 'dayGridMonth',
             locale: 'pt-br',
-            height: 'auto', // Ajusta conforme o conteúdo
-            contentHeight: 350, // Limita a altura para não empurrar tudo
+            contentHeight: 350,
             headerToolbar: { left: 'prev,next', center: 'title', right: '' },
             dateClick: function(info) {
                 document.getElementById('v-data').value = info.dateStr;
                 carregarTabelaVistos();
-                // Scroll suave até a tabela para facilitar
                 document.querySelector('.table-wrapper').scrollIntoView({ behavior: 'smooth' });
             }
         });
@@ -217,7 +208,7 @@
             let opts = ''; let checks = '';
             Object.keys(turmas).forEach(t => {
                 opts += `<option value="${t}">${t}</option>`;
-                checks += `<label><input type="checkbox" class="rep-check" value="${t}"> ${t}</label>`;
+                checks += `<label style="cursor:pointer"><input type="checkbox" class="rep-check" value="${t}"> ${t}</label> `;
             });
             document.getElementById('v-turma').innerHTML = opts;
             document.getElementById('adj-turma').innerHTML = opts;
@@ -232,11 +223,7 @@
         if(!t) return;
         db.ref(`vistos/${t}`).on('value', snap => {
             const dias = snap.val() || {};
-            const events = Object.keys(dias).map(data => ({
-                start: data,
-                display: 'background',
-                classNames: ['has-visto']
-            }));
+            const events = Object.keys(dias).map(data => ({ start: data, display: 'background', classNames: ['has-visto'] }));
             calendar.removeAllEvents();
             calendar.addEventSource(events);
             carregarTabelaVistos();
@@ -247,26 +234,16 @@
         const t = document.getElementById('v-turma').value;
         const d = document.getElementById('v-data').value;
         if(!t) return;
-        
-        const [sAl, sVi, sHe] = await Promise.all([
-            db.ref('turmas/'+t).once('value'), 
-            db.ref(`vistos/${t}/${d}`).once('value'), 
-            db.ref(`headers/${t}`).once('value')
-        ]);
-
-        const alunos = sAl.val() || []; 
-        const marcados = sVi.val() || {}; 
-        const heads = sHe.val() || {};
-
+        const [sAl, sVi, sHe] = await Promise.all([db.ref('turmas/'+t).once('value'), db.ref(`vistos/${t}/${d}`).once('value'), db.ref(`headers/${t}`).once('value')]);
+        const alunos = sAl.val() || []; const marcados = sVi.val() || {}; const heads = sHe.val() || {};
         for(let i=1; i<=6; i++) document.getElementById('h'+i).value = heads['h'+i] || '';
         document.getElementById('thr-vistos').innerHTML = `<th>Aluno</th>` + Array.from({length:6}, (_,i)=>`<th>${i+1}</th>`).join('');
-        
         let html = '';
         alunos.forEach((nome, idx) => {
             html += `<tr><td>${nome}</td>`;
             for(let v=1; v<=6; v++) {
                 let isChecked = (marcados[idx] && marcados[idx][v]) ? 'checked' : '';
-                html += `<td><div class="visto-box"><input type="checkbox" class="chk-v" data-idx="${idx}" data-v="${v}" ${isChecked}></div></td>`;
+                html += `<td><input type="checkbox" class="chk-v" data-idx="${idx}" data-v="${v}" ${isChecked}></td>`;
             }
             html += `</tr>`;
         });
@@ -282,7 +259,7 @@
             if(!dados[idx]) dados[idx] = {};
             dados[idx][v] = el.checked;
         });
-        db.ref(`vistos/${t}/${d}`).set(dados).then(() => alert("Salvo!"));
+        db.ref(`vistos/${t}/${d}`).set(dados).then(() => alert("Vistos salvos!"));
     }
 
     function salvarHeaders() {
@@ -291,8 +268,81 @@
         db.ref(`headers/${t}`).set(h);
     }
 
-    // Funções extras de conteúdo, siap e ajustes continuam iguais...
-    // (Omitidas aqui para o código não ficar gigante, mas você deve manter as que já funcionavam)
+    function listarHistoricoConteudo() {
+        const t = document.getElementById('c-turma-select').value;
+        db.ref(`diarios/${t}`).once('value', snap => {
+            const itens = snap.val() || {};
+            let html = '';
+            Object.entries(itens).reverse().forEach(([id, obj]) => {
+                html += `<div class="hist-item"><span><strong>${obj.data.split('-').reverse().join('/')}:</strong> ${obj.conteudo}</span>
+                <button class="btn btn-small btn-red" onclick="excluirConteudo('${id}')">X</button></div>`;
+            });
+            document.getElementById('lista-historico-c').innerHTML = html;
+        });
+    }
+
+    function excluirConteudo(id) {
+        if(confirm("Excluir aula?")) {
+            const t = document.getElementById('c-turma-select').value;
+            db.ref(`diarios/${t}/${id}`).remove().then(() => listarHistoricoConteudo());
+        }
+    }
+
+    function salvarConteudo() {
+        const txt = document.getElementById('c-texto').value;
+        const data = document.getElementById('c-data').value;
+        const tPrincipal = document.getElementById('c-turma-select').value;
+        if(!txt) return alert("Vazio!");
+        const turmas = Array.from(document.querySelectorAll('.rep-check:checked')).map(c => c.value);
+        turmas.push(tPrincipal);
+        [...new Set(turmas)].forEach(t => db.ref(`diarios/${t}`).push({ data, conteudo: txt }));
+        alert("Conteúdo Salvo!");
+        document.getElementById('c-texto').value = "";
+        listarHistoricoConteudo();
+    }
+
+    async function gerarRelatorio() {
+        const t = document.getElementById('v-turma').value;
+        const [sAl, sVi] = await Promise.all([db.ref('turmas/'+t).once('value'), db.ref(`vistos/${t}`).once('value')]);
+        const alunos = sAl.val() || []; const todos = sVi.val() || {};
+        let res = alunos.map(nome => ({ nome, total: 0 }));
+        Object.values(todos).forEach(dia => {
+            Object.entries(dia).forEach(([idx, v]) => { if(res[idx]) res[idx].total += Object.values(v).filter(x => x === true).length; });
+        });
+        let teto = Math.max(...res.map(a => a.total), 1);
+        let h = `<div class="table-wrapper"><table><thead><tr><th>Aluno</th><th>Vistos</th><th>Nota</th></tr></thead><tbody>`;
+        res.forEach(a => {
+            let nota = ((a.total * 10) / teto).toFixed(1).replace('.', ',');
+            h += `<tr><td>${a.nome}</td><td>${a.total}</td><td>${nota}</td></tr>`;
+        });
+        document.getElementById('relatorio-final').innerHTML = h + `</tbody></table></div>`;
+    }
+
+    function exportarParaSIAP() {
+        let d = {};
+        document.querySelectorAll('#relatorio-final tr').forEach((tr, i) => {
+            if(i>0) d[tr.cells[0].innerText.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")] = tr.cells[2].innerText;
+        });
+        navigator.clipboard.writeText(JSON.stringify(d)).then(() => alert("Copiado para o SIAP!"));
+    }
+
+    function criarTurma() {
+        const nome = document.getElementById('nova-turma-nome').value.toUpperCase();
+        const lista = document.getElementById('nova-turma-lista').value.split('\n').map(n => n.trim()).filter(n => n.length > 2);
+        if(!nome || lista.length === 0) return alert("Erro!");
+        db.ref('turmas/'+nome).set(lista).then(() => { alert("Turma Criada!"); document.getElementById('nova-turma-lista').value=""; });
+    }
+
+    function resetTotal() {
+        if(confirm("ATENÇÃO: Deletar tudo permanentemente?")) {
+            if(confirm("ÚLTIMO AVISO: Não há volta!")) {
+                db.ref('/').remove().then(() => {
+                    alert("✅ SISTEMA RESETADO COM SUCESSO!");
+                    location.reload();
+                });
+            }
+        }
+    }
 </script>
 </body>
 </html>

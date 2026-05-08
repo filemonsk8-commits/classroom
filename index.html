@@ -5,144 +5,169 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classroom | Prof. Bernard</title>
     
-    <!-- Firebase SDKs (Versão Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
 
     <style>
         :root {
-            --primary: #1e293b;
-            --accent: #2563eb;
-            --bg: #f1f5f9;
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --bg: #f8fafc;
             --white: #ffffff;
-            --text: #334155;
-            --success: #059669;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
         }
 
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 0; }
         
-        /* Navegação */
-        nav { background: var(--primary); padding: 10px; display: flex; gap: 8px; overflow-x: auto; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        nav button { background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px 16px; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: 500; }
-        nav button.active { background: var(--accent); }
+        /* LOGIN ESTILIZADO */
+        .login-screen { 
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, var(--primary) 0%, #1e293b 100%);
+        }
+        .login-card { 
+            background: var(--white); padding: 40px; border-radius: 20px; 
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); width: 100%; max-width: 350px; text-align: center;
+        }
+        .login-card h2 { margin-bottom: 5px; color: var(--primary); font-size: 24px; }
+        .login-card p { color: var(--text-sub); font-size: 14px; margin-bottom: 25px; }
 
-        /* Containers e Cards */
-        .container { padding: 15px; max-width: 1200px; margin: 0 auto; }
-        .card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        /* NAVEGAÇÃO / ABAS */
+        nav { 
+            background: var(--white); padding: 10px; display: flex; gap: 5px; 
+            overflow-x: auto; position: sticky; top: 0; z-index: 1000; 
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .nav-btn { 
+            background: transparent; border: none; color: var(--text-sub); 
+            padding: 12px 18px; border-radius: 12px; cursor: pointer; 
+            font-weight: 600; font-size: 14px; transition: 0.3s;
+        }
+        .nav-btn.active { background: #eff6ff; color: var(--accent); }
+
+        /* CONTEÚDO */
+        .container { padding: 20px; max-width: 1000px; margin: 0 auto; }
+        .card { 
+            background: var(--white); padding: 20px; border-radius: 16px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px;
+        }
         .hidden { display: none; }
 
-        /* Tabelas com Nome Fixo (Sticky Column) */
-        .table-wrapper { overflow-x: auto; background: var(--white); border-radius: 8px; border: 1px solid #e2e8f0; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th, td { padding: 12px; border-bottom: 1px solid #f1f5f9; text-align: left; }
+        /* TABELAS */
+        .table-wrapper { 
+            overflow-x: auto; background: var(--white); border-radius: 12px; border: 1px solid #e2e8f0; 
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px; border-bottom: 1px solid #f1f5f9; text-align: left; font-size: 14px; }
         
-        /* A mágica do nome fixo na esquerda */
         th:first-child, td:first-child { 
-            position: sticky; left: 0; background: var(--white); z-index: 10; min-width: 160px; box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            position: sticky; left: 0; background: var(--white); z-index: 10; 
+            min-width: 180px; border-right: 2px solid #f1f5f9;
         }
-        th { background: #f8fafc; color: #64748b; font-weight: 600; }
+        th { background: #f8fafc; color: var(--text-sub); text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
 
-        /* Vistos e Inputs */
-        .visto-grid { display: flex; gap: 4px; justify-content: center; }
-        .chk-v { width: 22px; height: 22px; cursor: pointer; }
-        input[type="text"], input[type="date"], select, textarea { 
-            width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 5px; box-sizing: border-box;
+        /* FORMULÁRIOS */
+        input, select, textarea { 
+            width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; 
+            margin-top: 8px; font-size: 14px; background: #fcfcfc;
         }
-        .btn-main { background: var(--accent); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; transition: 0.2s; }
-        .btn-main:active { transform: scale(0.98); }
-        .btn-sec { background: var(--success); }
+        .btn-main { 
+            background: var(--accent); color: white; border: none; padding: 14px; 
+            border-radius: 12px; cursor: pointer; width: 100%; font-weight: 700; 
+            margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+        .btn-sec { background: var(--success); box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); }
 
-        /* Login */
-        .login-screen { max-width: 350px; margin: 100px auto; text-align: center; }
+        .visto-badge { 
+            display: inline-block; width: 24px; height: 24px; border-radius: 6px; border: 2px solid #cbd5e1;
+            cursor: pointer; transition: 0.2s;
+        }
+        input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<!-- Login -->
-<div id="aba-login" class="login-screen card">
-    <h2 style="color: var(--primary)">Classroom v4.0</h2>
-    <p>Acesso Restrito</p>
-    <input type="password" id="senha" placeholder="Digite a senha...">
-    <button class="btn-main" onclick="logar()">Entrar</button>
+<div id="aba-login" class="login-screen">
+    <div class="login-card">
+        <div style="background: var(--accent); width: 50px; height: 50px; border-radius: 12px; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 24px;">C</div>
+        <h2>Classroom</h2>
+        <p>Acesse seu painel docente</p>
+        <input type="password" id="senha" placeholder="Senha de acesso">
+        <button class="btn-main" onclick="logar()">Entrar no Sistema</button>
+    </div>
 </div>
 
-<!-- Menu -->
 <nav id="menu" class="hidden">
-    <button onclick="mudarAba('vistos')" class="btn-nav">Vistos</button>
-    <button onclick="mudarAba('diario')" class="btn-nav">Diário</button>
-    <button onclick="mudarAba('fechamento')" class="btn-nav">Fechamento/SIAP</button>
-    <button onclick="mudarAba('ajustes')" class="btn-nav">Ajustes</button>
+    <button onclick="mudarAba('vistos')" class="nav-btn active" id="nb-vistos">Vistos</button>
+    <button onclick="mudarAba('diario')" class="nav-btn" id="nb-diario">Diário</button>
+    <button onclick="mudarAba('fechamento')" class="nav-btn" id="nb-fechamento">Fechamento</button>
+    <button onclick="mudarAba('ajustes')" class="nav-btn" id="nb-ajustes">Ajustes</button>
 </nav>
 
 <div id="app" class="container hidden">
     
-    <!-- ABA VISTOS -->
+    <!-- VISTOS -->
     <div id="sec-vistos" class="aba-content">
         <div class="card">
-            <label>Selecione a Turma e Data</label>
-            <select id="visto-turma" onchange="carregarAlunos()"></select>
-            <input type="date" id="visto-data" onchange="carregarAlunos()">
-            <div id="visto-headers" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 10px;">
-                <!-- Headers h1-h6 via JS -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <select id="visto-turma" onchange="carregarAlunos()"></select>
+                <input type="date" id="visto-data" onchange="carregarAlunos()">
             </div>
+            <div id="visto-headers" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 15px;"></div>
         </div>
         <div class="table-wrapper">
             <table id="tabela-vistos">
-                <thead><tr id="thr-vistos"><th>Aluno</th></tr></thead>
+                <thead><tr id="thr-vistos"></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
-        <button class="btn-main" onclick="salvarVistos()">💾 Salvar Vistos</button>
+        <button class="btn-main" onclick="salvarVistos()">💾 Salvar Frequência e Vistos</button>
     </div>
 
-    <!-- ABA DIÁRIO -->
+    <!-- DIÁRIO -->
     <div id="sec-diario" class="aba-content hidden">
         <div class="card">
-            <h3>Registro de Aula</h3>
-            <input type="date" id="diario-data">
-            <textarea id="diario-texto" rows="5" placeholder="Conteúdo da aula..."></textarea>
-            <div id="replicar-container" style="margin-top: 10px;">
-                <p><strong>Replicar para:</strong></p>
-                <div id="lista-replicar"></div>
+            <h3>📝 Registro de Aula</h3>
+            <textarea id="diario-texto" rows="6" placeholder="O que foi trabalhado hoje?"></textarea>
+            <div id="replicar-container" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                <p style="font-weight: bold; font-size: 14px;">Replicar conteúdo para:</p>
+                <div id="lista-replicar" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;"></div>
             </div>
-            <button class="btn-main" onclick="salvarDiario()">📤 Salvar e Replicar</button>
+            <button class="btn-main" onclick="salvarDiario()">📤 Salvar e Replicar Diário</button>
         </div>
     </div>
 
-    <!-- ABA FECHAMENTO -->
+    <!-- FECHAMENTO -->
     <div id="sec-fechamento" class="aba-content hidden">
         <div class="card">
-            <h3>Fechamento Bimestral</h3>
+            <h3>📊 Fechamento Bimestral</h3>
+            <label style="font-size: 12px; color: var(--text-sub)">Selecione o Bimestre</label>
             <select id="fechamento-bimestre">
-                <option value="1">1º Bimestre</option>
-                <option value="2">2º Bimestre</option>
-                <option value="3">3º Bimestre</option>
-                <option value="4">4º Bimestre</option>
+                <option value="1">1º Bimestre</option><option value="2">2º Bimestre</option>
+                <option value="3">3º Bimestre</option><option value="4">4º Bimestre</option>
             </select>
-            <button class="btn-main" onclick="gerarRelatorio()">📊 Gerar Notas (Proporcional 10)</button>
-            <button class="btn-main btn-sec" onclick="exportarParaSIAP()">📋 Copiar para o SIAP</button>
+            <button class="btn-main" onclick="gerarRelatorio()">Calcular Notas Proporcionais</button>
+            <button class="btn-main btn-sec" onclick="exportarParaSIAP()">📋 Copiar Dados para SIAP</button>
         </div>
         <div class="table-wrapper" id="relatorio-final"></div>
     </div>
 
-    <!-- ABA AJUSTES -->
+    <!-- AJUSTES -->
     <div id="sec-ajustes" class="aba-content hidden">
         <div class="card">
-            <h3>Importar Nova Turma</h3>
-            <input type="text" id="nome-nova-turma" placeholder="Ex: 3ª SÉRIE A">
+            <h3>➕ Nova Turma</h3>
+            <input type="text" id="nome-nova-turma" placeholder="NOME DA TURMA (Ex: 3A)">
+            <p style="font-size: 11px; color: var(--danger)">* Cole os nomes exatamente na ordem do SIAP.</p>
             <textarea id="lista-bruta" rows="8" placeholder="Cole a lista de nomes aqui..."></textarea>
             <button class="btn-main" onclick="importarTurma()">📥 Criar Turma</button>
-        </div>
-        <div class="card" id="gerenciar-turmas">
-            <h3>Turmas Ativas</h3>
-            <div id="lista-turmas-config"></div>
         </div>
     </div>
 
 </div>
 
 <script>
-    // CONFIGURAÇÃO FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyCTu2YNF6TXWGdjBtRrDW1dL5e5MoIPI4c",
         authDomain: "classroom-b14f4.firebaseapp.com",
@@ -155,7 +180,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // LOGIN
     function logar() {
         if(document.getElementById('senha').value === '2203') {
             document.getElementById('aba-login').classList.add('hidden');
@@ -167,63 +191,59 @@
 
     function mudarAba(id) {
         document.querySelectorAll('.aba-content').forEach(a => a.classList.add('hidden'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('sec-' + id).classList.remove('hidden');
-        document.querySelectorAll('.btn-nav').forEach(b => b.classList.remove('active'));
+        document.getElementById('nb-' + id).classList.add('active');
     }
 
     function inicializarApp() {
         const hoje = new Date().toISOString().split('T')[0];
         document.getElementById('visto-data').value = hoje;
-        document.getElementById('diario-data').value = hoje;
-        
-        // Gerar 6 inputs de Header
         let hHtml = '';
-        for(let i=1; i<=6; i++) hHtml += `<input type="text" id="h${i}" placeholder="Ativ ${i}" onchange="salvarHeaders()">`;
+        for(let i=1; i<=6; i++) hHtml += `<input type="text" id="h${i}" placeholder="Título ${i}" onchange="salvarHeaders()">`;
         document.getElementById('visto-headers').innerHTML = hHtml;
-        
         carregarTurmas();
     }
 
     function carregarTurmas() {
         db.ref('turmas').on('value', snap => {
             const turmas = snap.val() || {};
-            let options = '';
-            let checks = '';
+            let options = ''; let checks = '';
             Object.keys(turmas).forEach(t => {
                 options += `<option value="${t}">${t}</option>`;
-                checks += `<div><input type="checkbox" class="check-replicar" value="${t}"> ${t}</div>`;
+                checks += `<label style="font-size:12px"><input type="checkbox" class="check-replicar" value="${t}"> ${t}</label>`;
             });
             document.getElementById('visto-turma').innerHTML = options;
             document.getElementById('lista-replicar').innerHTML = checks;
+            carregarAlunos();
         });
     }
 
-    // VISTOS
     async function carregarAlunos() {
         const t = document.getElementById('visto-turma').value;
         const d = document.getElementById('visto-data').value;
         if(!t) return;
 
-        const snapAlunos = await db.ref('turmas/' + t).once('value');
-        const snapVistos = await db.ref(`vistos/${t}/${d}`).once('value');
-        const snapHeaders = await db.ref(`headers/${t}`).once('value');
+        const [sAl, sVi, sHe] = await Promise.all([
+            db.ref('turmas/'+t).once('value'),
+            db.ref(`vistos/${t}/${d}`).once('value'),
+            db.ref(`headers/${t}`).once('value')
+        ]);
         
-        const alunos = snapAlunos.val() || [];
-        const vistos = snapVistos.val() || {};
-        const headers = snapHeaders.val() || {};
+        const alunos = sAl.val() || [];
+        const vistos = sVi.val() || {};
+        const headers = sHe.val() || {};
 
         for(let i=1; i<=6; i++) document.getElementById('h'+i).value = headers['h'+i] || '';
 
-        let th = '<th>Aluno</th>';
-        for(let i=1; i<=6; i++) th += `<th style="text-align:center">${i}</th>`;
-        document.getElementById('thr-vistos').innerHTML = th;
+        document.getElementById('thr-vistos').innerHTML = `<th>Aluno</th>` + Array.from({length:6}, (_,i)=>`<th style="text-align:center">${i+1}</th>`).join('');
 
         let html = '';
         alunos.forEach((nome, idx) => {
             html += `<tr><td>${nome}</td>`;
             for(let v=1; v<=6; v++) {
-                const checked = (vistos[idx] && vistos[idx][v]) ? 'checked' : '';
-                html += `<td style="text-align:center"><input type="checkbox" class="chk-v" data-idx="${idx}" data-v="${v}" ${checked}></td>`;
+                const c = (vistos[idx] && vistos[idx][v]) ? 'checked' : '';
+                html += `<td style="text-align:center"><input type="checkbox" class="chk-v" data-idx="${idx}" data-v="${v}" ${c}></td>`;
             }
             html += `</tr>`;
         });
@@ -241,98 +261,65 @@
         const t = document.getElementById('visto-turma').value;
         const d = document.getElementById('visto-data').value;
         let dados = {};
-        
         document.querySelectorAll('.chk-v').forEach(el => {
-            const idx = el.dataset.idx;
-            const v = el.dataset.v;
+            const {idx, v} = el.dataset;
             if(!dados[idx]) dados[idx] = {};
             dados[idx][v] = el.checked;
         });
-        db.ref(`vistos/${t}/${d}`).set(dados).then(() => alert("Vistos salvos!"));
+        db.ref(`vistos/${t}/${d}`).set(dados).then(() => alert("✅ Registrado com sucesso!"));
     }
 
-    // DIÁRIO
     function salvarDiario() {
         const txt = document.getElementById('diario-texto').value;
-        const data = document.getElementById('diario-data').value;
-        const turmas = [document.getElementById('visto-turma').value];
-        document.querySelectorAll('.check-replicar:checked').forEach(c => turmas.push(c.value));
+        const data = document.getElementById('visto-data').value; // Usa a data da aba vistos
+        const selecionadas = Array.from(document.querySelectorAll('.check-replicar:checked')).map(c => c.value);
+        selecionadas.push(document.getElementById('visto-turma').value);
 
         if(!txt) return alert("Escreva o conteúdo!");
-
-        const uniqueTurmas = [...new Set(turmas)];
-        uniqueTurmas.forEach(t => {
-            db.ref(`diarios/${t}`).push({ data, conteudo: txt });
-        });
-        alert("Diário salvo em " + uniqueTurmas.length + " turmas!");
-        document.getElementById('diario-texto').value = "";
+        [...new Set(selecionadas)].forEach(t => db.ref(`diarios/${t}`).push({ data, conteudo: txt }));
+        alert("✅ Diário replicado!");
     }
 
-    // FECHAMENTO (NOTA 10)
     async function gerarRelatorio() {
         const t = document.getElementById('visto-turma').value;
-        const b = document.getElementById('fechamento-bimestre').value;
-        const snapAlunos = await db.ref('turmas/' + t).once('value');
-        const snapVistos = await db.ref(`vistos/${t}`).once('value');
-        
-        const alunos = snapAlunos.val() || [];
-        const todosVistos = snapVistos.val() || {};
-        
-        let contagem = alunos.map(nome => ({ nome, total: 0 }));
-        let maxVistosNoPeriodo = 0;
+        const [sAl, sVi] = await Promise.all([
+            db.ref('turmas/'+t).once('value'),
+            db.ref(`vistos/${t}`).once('value')
+        ]);
+        const alunos = sAl.val() || [];
+        const todosVistos = sVi.val() || {};
+        let res = alunos.map(nome => ({ nome, total: 0 }));
 
-        // Soma vistos do aluno e calcula o teto
         Object.values(todosVistos).forEach(dia => {
-            let vistosNesseDia = 0;
-            Object.entries(dia).forEach(([idx, checkboxes]) => {
-                let vAluno = Object.values(checkboxes).filter(v => v === true).length;
-                if(contagem[idx]) contagem[idx].total += vAluno;
-                if(vAluno > vistosNesseDia) vistosNesseDia = vAluno;
+            Object.entries(dia).forEach(([idx, v]) => {
+                if(res[idx]) res[idx].total += Object.values(v).filter(x => x === true).length;
             });
-            maxVistosNoPeriodo += 6; // Baseamos em 6 campos por dia letivo
         });
 
-        // Teto real = o máximo de vistos que o professor realmente abriu
-        let tetoReal = Math.max(...contagem.map(a => a.total), 1);
-
-        let html = `<table><thead><tr><th>Aluno</th><th>Vistos</th><th>Nota (0-10)</th></tr></thead><tbody>`;
-        contagem.forEach(a => {
-            let nota = ((a.total * 10) / tetoReal).toFixed(1).replace('.', ',');
-            html += `<tr><td>${a.nome}</td><td>${a.total}</td><td style="font-weight:bold; color:var(--accent)">${nota}</td></tr>`;
+        let teto = Math.max(...res.map(a => a.total), 1);
+        let h = `<table><thead><tr><th>Aluno</th><th>Vistos</th><th>Nota</th></tr></thead><tbody>`;
+        res.forEach(a => {
+            let nota = ((a.total * 10) / teto).toFixed(1).replace('.', ',');
+            h += `<tr><td>${a.nome}</td><td>${a.total}</td><td style="color:var(--accent); font-weight:bold">${nota}</td></tr>`;
         });
-        document.getElementById('relatorio-final').innerHTML = html + `</tbody></table>`;
+        document.getElementById('relatorio-final').innerHTML = h + `</tbody></table>`;
     }
 
     function exportarParaSIAP() {
-        let dados = {};
-        const linhas = document.querySelectorAll('#relatorio-final tr');
-        linhas.forEach((tr, i) => {
-            if(i === 0) return;
-            const nome = tr.cells[0].innerText.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            const nota = tr.cells[2].innerText;
-            dados[nome] = nota;
+        let d = {};
+        document.querySelectorAll('#relatorio-final tr').forEach((tr, i) => {
+            if(i>0) d[tr.cells[0].innerText.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")] = tr.cells[2].innerText;
         });
-        const el = document.createElement('textarea');
-        el.value = JSON.stringify(dados);
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        alert("✅ Dados copiados! Use o Robô no SIAP.");
+        navigator.clipboard.writeText(JSON.stringify(d)).then(() => alert("✅ JSON copiado! Cole no Robô do SIAP."));
     }
 
-    // AJUSTES
     function importarTurma() {
-        const nome = document.getElementById('nome-nova-turma').value.toUpperCase();
-        const lista = document.getElementById('lista-bruta').value.split('\n')
-            .map(n => n.replace(/[0-9]/g, '').trim())
-            .filter(n => n.length > 3).sort();
-        
-        if(!nome || lista.length === 0) return alert("Dados insuficientes!");
-        db.ref('turmas/' + nome).set(lista).then(() => {
-            alert("Turma " + nome + " criada!");
-            document.getElementById('lista-bruta').value = "";
-        });
+        const n = document.getElementById('nome-nova-turma').value.toUpperCase();
+        // REMOVIDO O .SORT() PARA MANTER A ORDEM DO SIAP
+        const l = document.getElementById('lista-bruta').value.split('\n')
+            .map(x => x.replace(/[0-9]/g, '').trim()).filter(x => x.length > 3);
+        if(!n || l.length === 0) return alert("Dados inválidos!");
+        db.ref('turmas/'+n).set(l).then(() => alert("Turma criada na ordem original!"));
     }
 </script>
 </body>

@@ -10,92 +10,42 @@
 
     <style>
         :root {
-            --primary: #0f172a;
-            --accent: #3b82f6;
-            --bg: #f8fafc;
-            --white: #ffffff;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
-            --success: #10b981;
-            --danger: #ef4444;
+            --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --white: #ffffff;
+            --text-main: #1e293b; --text-sub: #64748b; --success: #10b981; --danger: #ef4444;
         }
-
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; }
         
-        /* LOGIN ESTILIZADO */
-        .login-screen { 
-            height: 100vh; display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, var(--primary) 0%, #1e293b 100%);
-        }
-        .login-card { 
-            background: var(--white); padding: 40px; border-radius: 20px; 
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); width: 100%; max-width: 350px; text-align: center;
-        }
-        .login-card h2 { margin-bottom: 5px; color: var(--primary); font-size: 24px; }
-        .login-card p { color: var(--text-sub); font-size: 14px; margin-bottom: 25px; }
+        .login-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary) 0%, #1e293b 100%); }
+        .login-card { background: var(--white); padding: 40px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
 
-        /* NAVEGAÇÃO / ABAS */
-        nav { 
-            background: var(--white); padding: 10px; display: flex; gap: 5px; 
-            overflow-x: auto; position: sticky; top: 0; z-index: 1000; 
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .nav-btn { 
-            background: transparent; border: none; color: var(--text-sub); 
-            padding: 12px 18px; border-radius: 12px; cursor: pointer; 
-            font-weight: 600; font-size: 14px; transition: 0.3s;
-        }
+        nav { background: var(--white); padding: 10px; display: flex; gap: 5px; overflow-x: auto; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #e2e8f0; }
+        .nav-btn { background: transparent; border: none; color: var(--text-sub); padding: 12px 18px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; }
         .nav-btn.active { background: #eff6ff; color: var(--accent); }
 
-        /* CONTEÚDO */
         .container { padding: 20px; max-width: 1000px; margin: 0 auto; }
-        .card { 
-            background: var(--white); padding: 20px; border-radius: 16px; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px;
-        }
+        .card { background: var(--white); padding: 20px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .hidden { display: none; }
 
-        /* TABELAS */
-        .table-wrapper { 
-            overflow-x: auto; background: var(--white); border-radius: 12px; border: 1px solid #e2e8f0; 
-        }
+        .table-wrapper { overflow-x: auto; background: var(--white); border-radius: 12px; border: 1px solid #e2e8f0; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 14px; border-bottom: 1px solid #f1f5f9; text-align: left; font-size: 14px; }
         
-        th:first-child, td:first-child { 
-            position: sticky; left: 0; background: var(--white); z-index: 10; 
-            min-width: 180px; border-right: 2px solid #f1f5f9;
-        }
-        th { background: #f8fafc; color: var(--text-sub); text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+        th:first-child, td:first-child { position: sticky; left: 0; background: var(--white); z-index: 10; min-width: 180px; border-right: 2px solid #f1f5f9; }
+        th { background: #f8fafc; color: var(--text-sub); text-transform: uppercase; font-size: 11px; }
 
-        /* FORMULÁRIOS */
-        input, select, textarea { 
-            width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; 
-            margin-top: 8px; font-size: 14px; background: #fcfcfc;
-        }
-        .btn-main { 
-            background: var(--accent); color: white; border: none; padding: 14px; 
-            border-radius: 12px; cursor: pointer; width: 100%; font-weight: 700; 
-            margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
-        }
-        .btn-sec { background: var(--success); box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); }
-
-        .visto-badge { 
-            display: inline-block; width: 24px; height: 24px; border-radius: 6px; border: 2px solid #cbd5e1;
-            cursor: pointer; transition: 0.2s;
-        }
-        input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; margin-top: 8px; box-sizing: border-box; }
+        .btn-main { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: 700; margin-top: 10px; }
+        .btn-danger { background: var(--danger); }
+        .btn-edit { background: none; border: 1px solid #cbd5e1; color: var(--text-sub); padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="aba-login" class="login-screen">
     <div class="login-card">
-        <div style="background: var(--accent); width: 50px; height: 50px; border-radius: 12px; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 24px;">C</div>
         <h2>Classroom</h2>
-        <p>Acesse seu painel docente</p>
         <input type="password" id="senha" placeholder="Senha de acesso">
-        <button class="btn-main" onclick="logar()">Entrar no Sistema</button>
+        <button class="btn-main" onclick="logar()">Entrar</button>
     </div>
 </div>
 
@@ -108,7 +58,6 @@
 
 <div id="app" class="container hidden">
     
-    <!-- VISTOS -->
     <div id="sec-vistos" class="aba-content">
         <div class="card">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -123,48 +72,55 @@
                 <tbody></tbody>
             </table>
         </div>
-        <button class="btn-main" onclick="salvarVistos()">💾 Salvar Frequência e Vistos</button>
+        <button class="btn-main" onclick="salvarVistos()">💾 Salvar Vistos</button>
     </div>
 
-    <!-- DIÁRIO -->
     <div id="sec-diario" class="aba-content hidden">
         <div class="card">
             <h3>📝 Registro de Aula</h3>
-            <textarea id="diario-texto" rows="6" placeholder="O que foi trabalhado hoje?"></textarea>
-            <div id="replicar-container" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
-                <p style="font-weight: bold; font-size: 14px;">Replicar conteúdo para:</p>
-                <div id="lista-replicar" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;"></div>
-            </div>
-            <button class="btn-main" onclick="salvarDiario()">📤 Salvar e Replicar Diário</button>
+            <textarea id="diario-texto" rows="6"></textarea>
+            <div id="lista-replicar" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 10px;"></div>
+            <button class="btn-main" onclick="salvarDiario()">📤 Salvar e Replicar</button>
         </div>
     </div>
 
-    <!-- FECHAMENTO -->
     <div id="sec-fechamento" class="aba-content hidden">
         <div class="card">
-            <h3>📊 Fechamento Bimestral</h3>
-            <label style="font-size: 12px; color: var(--text-sub)">Selecione o Bimestre</label>
+            <h3>📊 Fechamento</h3>
             <select id="fechamento-bimestre">
-                <option value="1">1º Bimestre</option><option value="2">2º Bimestre</option>
-                <option value="3">3º Bimestre</option><option value="4">4º Bimestre</option>
+                <option value="1">1º Bim</option><option value="2">2º Bim</option>
+                <option value="3">3º Bim</option><option value="4">4º Bim</option>
             </select>
-            <button class="btn-main" onclick="gerarRelatorio()">Calcular Notas Proporcionais</button>
-            <button class="btn-main btn-sec" onclick="exportarParaSIAP()">📋 Copiar Dados para SIAP</button>
+            <button class="btn-main" onclick="gerarRelatorio()">📊 Gerar Notas</button>
+            <button class="btn-main" style="background:#10b981" onclick="exportarParaSIAP()">📋 Copiar SIAP</button>
         </div>
-        <div class="table-wrapper" id="relatorio-final"></div>
+        <div id="relatorio-final"></div>
     </div>
 
-    <!-- AJUSTES -->
     <div id="sec-ajustes" class="aba-content hidden">
         <div class="card">
-            <h3>➕ Nova Turma</h3>
-            <input type="text" id="nome-nova-turma" placeholder="NOME DA TURMA (Ex: 3A)">
-            <p style="font-size: 11px; color: var(--danger)">* Cole os nomes exatamente na ordem do SIAP.</p>
-            <textarea id="lista-bruta" rows="8" placeholder="Cole a lista de nomes aqui..."></textarea>
-            <button class="btn-main" onclick="importarTurma()">📥 Criar Turma</button>
+            <h3>📥 Importar Turma Completa</h3>
+            <input type="text" id="nome-nova-turma" placeholder="NOME DA TURMA">
+            <textarea id="lista-bruta" rows="4" placeholder="Cole a lista de nomes..."></textarea>
+            <button class="btn-main" onclick="importarTurma()">Criar Turma</button>
+        </div>
+
+        <div class="card">
+            <h3>👤 Gestão de Alunos</h3>
+            <select id="ajuste-turma-select" onchange="listarAlunosParaEdicao()"></select>
+            <div style="margin-top:10px; display:flex; gap:5px;">
+                <input type="text" id="novo-aluno-nome" placeholder="Nome do novo aluno">
+                <button class="btn-main" style="margin:0; width:100px" onclick="adicionarUmAluno()">Add</button>
+            </div>
+            <div id="lista-edicao-alunos" style="margin-top:15px; max-height:200px; overflow-y:auto; border-top:1px solid #eee;"></div>
+        </div>
+
+        <div class="card" style="border: 2px solid var(--danger)">
+            <h3 style="color:var(--danger)">🧹 Limpeza de Sistema</h3>
+            <p style="font-size:12px">Use isso apenas na virada do ano. Isso apaga TODOS os vistos e diários, mas mantém as turmas.</p>
+            <button class="btn-main btn-danger" onclick="limpezaDeAnoNovo()">Apagar Vistos e Diários</button>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -176,7 +132,6 @@
         messagingSenderId: "426978927988",
         appId: "1:426978927988:web:370dee295ba6881e0bb821"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -194,13 +149,14 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('sec-' + id).classList.remove('hidden');
         document.getElementById('nb-' + id).classList.add('active');
+        if(id === 'ajustes') listarAlunosParaEdicao();
     }
 
     function inicializarApp() {
         const hoje = new Date().toISOString().split('T')[0];
         document.getElementById('visto-data').value = hoje;
         let hHtml = '';
-        for(let i=1; i<=6; i++) hHtml += `<input type="text" id="h${i}" placeholder="Título ${i}" onchange="salvarHeaders()">`;
+        for(let i=1; i<=6; i++) hHtml += `<input type="text" id="h${i}" placeholder="Tít ${i}" onchange="salvarHeaders()">`;
         document.getElementById('visto-headers').innerHTML = hHtml;
         carregarTurmas();
     }
@@ -211,9 +167,10 @@
             let options = ''; let checks = '';
             Object.keys(turmas).forEach(t => {
                 options += `<option value="${t}">${t}</option>`;
-                checks += `<label style="font-size:12px"><input type="checkbox" class="check-replicar" value="${t}"> ${t}</label>`;
+                checks += `<label><input type="checkbox" class="check-replicar" value="${t}"> ${t}</label>`;
             });
             document.getElementById('visto-turma').innerHTML = options;
+            document.getElementById('ajuste-turma-select').innerHTML = options;
             document.getElementById('lista-replicar').innerHTML = checks;
             carregarAlunos();
         });
@@ -223,21 +180,10 @@
         const t = document.getElementById('visto-turma').value;
         const d = document.getElementById('visto-data').value;
         if(!t) return;
-
-        const [sAl, sVi, sHe] = await Promise.all([
-            db.ref('turmas/'+t).once('value'),
-            db.ref(`vistos/${t}/${d}`).once('value'),
-            db.ref(`headers/${t}`).once('value')
-        ]);
-        
-        const alunos = sAl.val() || [];
-        const vistos = sVi.val() || {};
-        const headers = sHe.val() || {};
-
+        const [sAl, sVi, sHe] = await Promise.all([db.ref('turmas/'+t).once('value'), db.ref(`vistos/${t}/${d}`).once('value'), db.ref(`headers/${t}`).once('value')]);
+        const alunos = sAl.val() || []; const vistos = sVi.val() || {}; const headers = sHe.val() || {};
         for(let i=1; i<=6; i++) document.getElementById('h'+i).value = headers['h'+i] || '';
-
         document.getElementById('thr-vistos').innerHTML = `<th>Aluno</th>` + Array.from({length:6}, (_,i)=>`<th style="text-align:center">${i+1}</th>`).join('');
-
         let html = '';
         alunos.forEach((nome, idx) => {
             html += `<tr><td>${nome}</td>`;
@@ -250,13 +196,6 @@
         document.querySelector('#tabela-vistos tbody').innerHTML = html;
     }
 
-    function salvarHeaders() {
-        const t = document.getElementById('visto-turma').value;
-        let h = {};
-        for(let i=1; i<=6; i++) h['h'+i] = document.getElementById('h'+i).value;
-        db.ref(`headers/${t}`).set(h);
-    }
-
     function salvarVistos() {
         const t = document.getElementById('visto-turma').value;
         const d = document.getElementById('visto-data').value;
@@ -266,38 +205,89 @@
             if(!dados[idx]) dados[idx] = {};
             dados[idx][v] = el.checked;
         });
-        db.ref(`vistos/${t}/${d}`).set(dados).then(() => alert("✅ Registrado com sucesso!"));
+        db.ref(`vistos/${t}/${d}`).set(dados).then(() => alert("✅ Salvo!"));
+    }
+
+    // --- NOVAS FUNÇÕES DE EDIÇÃO E LIMPEZA ---
+
+    function listarAlunosParaEdicao() {
+        const t = document.getElementById('ajuste-turma-select').value;
+        db.ref('turmas/'+t).once('value', snap => {
+            const alunos = snap.val() || [];
+            let html = '';
+            alunos.forEach((nome, idx) => {
+                html += `<div style="display:flex; gap:5px; margin-bottom:5px;">
+                    <input type="text" value="${nome}" id="edit-aluno-${idx}" style="margin:0; padding:5px;">
+                    <button class="btn-edit" onclick="salvarEdicaoAluno(${idx})">Salvar</button>
+                </div>`;
+            });
+            document.getElementById('lista-edicao-alunos').innerHTML = html;
+        });
+    }
+
+    function salvarEdicaoAluno(idx) {
+        const t = document.getElementById('ajuste-turma-select').value;
+        const novoNome = document.getElementById(`edit-aluno-${idx}`).value;
+        db.ref(`turmas/${t}/${idx}`).set(novoNome).then(() => alert("Nome atualizado!"));
+    }
+
+    function adicionarUmAluno() {
+        const t = document.getElementById('ajuste-turma-select').value;
+        const nome = document.getElementById('novo-aluno-nome').value.toUpperCase();
+        if(!nome) return;
+        db.ref('turmas/'+t).once('value', snap => {
+            let alunos = snap.val() || [];
+            alunos.push(nome); // Adiciona ao final (ordem do SIAP)
+            db.ref('turmas/'+t).set(alunos).then(() => {
+                alert("Aluno adicionado no final da lista!");
+                document.getElementById('novo-aluno-nome').value = "";
+                listarAlunosParaEdicao();
+            });
+        });
+    }
+
+    function limpezaDeAnoNovo() {
+        if(confirm("⚠️ ATENÇÃO: Isso apagará TODOS os vistos e diários de todas as turmas. As listas de alunos permanecerão. Deseja continuar?")) {
+            const p1 = db.ref('vistos').remove();
+            const p2 = db.ref('diarios').remove();
+            Promise.all([p1, p2]).then(() => alert("🧹 Sistema limpo para o próximo ano!"));
+        }
+    }
+
+    // --- FUNÇÕES COMPLEMENTARES ---
+    function importarTurma() {
+        const n = document.getElementById('nome-nova-turma').value.toUpperCase();
+        const l = document.getElementById('lista-bruta').value.split('\n').map(x => x.replace(/[0-9]/g, '').trim()).filter(x => x.length > 3);
+        if(!n || l.length === 0) return alert("Erro!");
+        db.ref('turmas/'+n).set(l).then(() => alert("Turma Criada!"));
+    }
+
+    function salvarHeaders() {
+        const t = document.getElementById('visto-turma').value;
+        let h = {}; for(let i=1; i<=6; i++) h['h'+i] = document.getElementById('h'+i).value;
+        db.ref(`headers/${t}`).set(h);
     }
 
     function salvarDiario() {
         const txt = document.getElementById('diario-texto').value;
-        const data = document.getElementById('visto-data').value; // Usa a data da aba vistos
-        const selecionadas = Array.from(document.querySelectorAll('.check-replicar:checked')).map(c => c.value);
-        selecionadas.push(document.getElementById('visto-turma').value);
-
-        if(!txt) return alert("Escreva o conteúdo!");
-        [...new Set(selecionadas)].forEach(t => db.ref(`diarios/${t}`).push({ data, conteudo: txt }));
-        alert("✅ Diário replicado!");
+        const data = document.getElementById('visto-data').value;
+        const sel = Array.from(document.querySelectorAll('.check-replicar:checked')).map(c => c.value);
+        sel.push(document.getElementById('visto-turma').value);
+        if(!txt) return;
+        [...new Set(sel)].forEach(t => db.ref(`diarios/${t}`).push({ data, conteudo: txt }));
+        alert("✅ Diário salvo!");
     }
 
     async function gerarRelatorio() {
         const t = document.getElementById('visto-turma').value;
-        const [sAl, sVi] = await Promise.all([
-            db.ref('turmas/'+t).once('value'),
-            db.ref(`vistos/${t}`).once('value')
-        ]);
-        const alunos = sAl.val() || [];
-        const todosVistos = sVi.val() || {};
+        const [sAl, sVi] = await Promise.all([db.ref('turmas/'+t).once('value'), db.ref(`vistos/${t}`).once('value')]);
+        const alunos = sAl.val() || []; const todos = sVi.val() || {};
         let res = alunos.map(nome => ({ nome, total: 0 }));
-
-        Object.values(todosVistos).forEach(dia => {
-            Object.entries(dia).forEach(([idx, v]) => {
-                if(res[idx]) res[idx].total += Object.values(v).filter(x => x === true).length;
-            });
+        Object.values(todos).forEach(dia => {
+            Object.entries(dia).forEach(([idx, v]) => { if(res[idx]) res[idx].total += Object.values(v).filter(x => x === true).length; });
         });
-
         let teto = Math.max(...res.map(a => a.total), 1);
-        let h = `<table><thead><tr><th>Aluno</th><th>Vistos</th><th>Nota</th></tr></thead><tbody>`;
+        let h = `<table style="margin-top:10px"><thead><tr><th>Aluno</th><th>Vistos</th><th>Nota</th></tr></thead><tbody>`;
         res.forEach(a => {
             let nota = ((a.total * 10) / teto).toFixed(1).replace('.', ',');
             h += `<tr><td>${a.nome}</td><td>${a.total}</td><td style="color:var(--accent); font-weight:bold">${nota}</td></tr>`;
@@ -310,16 +300,7 @@
         document.querySelectorAll('#relatorio-final tr').forEach((tr, i) => {
             if(i>0) d[tr.cells[0].innerText.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")] = tr.cells[2].innerText;
         });
-        navigator.clipboard.writeText(JSON.stringify(d)).then(() => alert("✅ JSON copiado! Cole no Robô do SIAP."));
-    }
-
-    function importarTurma() {
-        const n = document.getElementById('nome-nova-turma').value.toUpperCase();
-        // REMOVIDO O .SORT() PARA MANTER A ORDEM DO SIAP
-        const l = document.getElementById('lista-bruta').value.split('\n')
-            .map(x => x.replace(/[0-9]/g, '').trim()).filter(x => x.length > 3);
-        if(!n || l.length === 0) return alert("Dados inválidos!");
-        db.ref('turmas/'+n).set(l).then(() => alert("Turma criada na ordem original!"));
+        navigator.clipboard.writeText(JSON.stringify(d)).then(() => alert("Copiado!"));
     }
 </script>
 </body>

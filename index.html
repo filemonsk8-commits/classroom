@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom | Prof. Bernard</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #1e293b;
+            --accent: #2563eb;
+            --bg: #f8fafc;
+            --text: #334155;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        
+        /* Menu e Navegação */
+        nav { background: var(--primary); padding: 15px; display: flex; gap: 10px; overflow-x: auto; position: sticky; top: 0; z-index: 100; }
+        nav button { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; white-space: nowrap; }
+        nav button.active { background: var(--accent); }
+
+        /* Estilo da Tabela e Nome Fixo (Sticky) */
+        .table-container { overflow-x: auto; margin: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+        
+        /* Nome fixo na esquerda */
+        td:first-child, th:first-child { 
+            position: sticky; left: 0; background: white; z-index: 5; font-weight: bold; min-width: 150px;
+        }
+
+        /* Vistos */
+        .visto-grid { display: flex; gap: 5px; }
+        .chk-v { width: 20px; height: 20px; cursor: pointer; }
+
+        .hidden { display: none; }
+        .card { background: white; margin: 20px; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        
+        .btn-main { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<nav id="menu-principal" class="hidden">
+    <button onclick="mudarAba('vistos')" id="btn-vistos">Vistos</button>
+    <button onclick="mudarAba('diario')">Diário</button>
+    <button onclick="mudarAba('recuperacao')">Recuperação</button>
+    <button onclick="mudarAba('fechamento')">Fechamento (SIAP)</button>
+    <button onclick="mudarAba('ajustes')">Ajustes</button>
+</nav>
+
+<!-- Tela de Login -->
+<div id="tela-login" class="card" style="max-width: 300px; margin: 100px auto; text-align: center;">
+    <h2>Classroom v4.0</h2>
+    <input type="password" id="senha" placeholder="Senha" style="padding: 10px; width: 80%;"><br>
+    <button class="btn-main" onclick="logar()">Entrar</button>
+</div>
+
+<!-- Aba Vistos -->
+<div id="aba-vistos" class="hidden">
+    <div class="card">
+        <select id="sel-turma" onchange="carregarAlunos()"></select>
+        <input type="date" id="data-visto" onchange="carregarAlunos()">
+        <div id="header-vistos" style="margin-top: 10px; display: flex; gap: 5px;"></div>
+    </div>
+    <div class="table-container">
+        <table id="tabela-vistos">
+            <thead><tr><th>Aluno</th><th colspan="6">Vistos (1-6)</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <button class="btn-main" style="margin: 20px;" onclick="salvarVistos()">Salvar Vistos</button>
+</div>
+
+<!-- Aba Fechamento -->
+<div id="aba-fechamento" class="hidden">
+    <div class="card">
+        <h3>Fechamento Bimestral</h3>
+        <button class="btn-main" onclick="gerarRelatorio()">Calcular Notas Proporcionais</button>
+        <button class="btn-main" style="background: #059669;" onclick="exportarNotasRegulares()">Copiar p/ SIAP (Regular)</button>
+    </div>
+    <div class="table-container" id="resultado-fechamento"></div>
+</div>
+
+<script>
+    // Configuração do seu Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCTu2YNF6TXWGdjBtRrDW1dL5e5MoIPI4c",
+        authDomain: "classroom-b14f4.firebaseapp.com",
+        projectId: "classroom-b14f4",
+        storageBucket: "classroom-b14f4.firebasestorage.app",
+        messagingSenderId: "426978927988",
+        appId: "1:426978927988:web:370dee295ba6881e0bb821"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function logar() {
+        if(document.getElementById('senha').value === '2203') {
+            document.getElementById('tela-login').classList.add('hidden');
+            document.getElementById('menu-principal').classList.remove('hidden');
+            mudarAba('vistos');
+            carregarTurmas();
+        } else { alert('Senha incorreta!'); }
+    }
+
+    function mudarAba(aba) {
+        ['vistos', 'diario', 'recuperacao', 'fechamento', 'ajustes'].forEach(a => {
+            document.getElementById('aba-'+a)?.classList.add('hidden');
+        });
+        document.getElementById('aba-'+aba).classList.remove('hidden');
+    }
+
+    // Carregar Turmas do Firebase
+    function carregarTurmas() {
+        db.ref('turmas').on('value', snapshot => {
+            const turmas = snapshot.val() || {};
+            let html = '';
+            Object.keys(turmas).forEach(t => html += `<option value="${t}">${t}</option>`);
+            document.getElementById('sel-turma').innerHTML = html;
+        });
+    }
+
+    // Lógica de Notas Proporcionais (Total = 10,0)
+    function calcularNota(vistosAluno, totalPossivel) {
+        if (totalPossivel === 0) return "0,0";
+        let nota = (vistosAluno * 10) / totalPossivel;
+        return nota.toFixed(1).replace('.', ',');
+    }
+
+    // Funções de exportação e salvar continuam aqui...
+</script>
+
+</body>
+</html>

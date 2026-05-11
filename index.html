@@ -16,11 +16,7 @@
         }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
         
-        /* Mãozinha em tudo que é clicável */
-        button, .nav-btn, .fc-daygrid-day, .fc-button, .chk-v, select, label { cursor: pointer !important; }
-
-        .login-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--primary); }
-        .login-card { background: var(--white); padding: 30px; border-radius: 15px; width: 300px; text-align: center; }
+        button, .nav-btn, .fc-daygrid-day, .fc-button, .chk-v, select, label, .move-btn { cursor: pointer !important; }
 
         nav { background: var(--white); padding: 10px; display: flex; gap: 10px; position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid #e2e8f0; overflow-x: auto; }
         .nav-btn { background: #e2e8f0; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; white-space: nowrap; }
@@ -30,96 +26,70 @@
         .card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .hidden { display: none; }
 
-        /* AJUSTE DO CALENDÁRIO - PARA NÃO ATROPELAR */
-        #calendar { background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 25px; clear: both; }
-        .fc-daygrid-day.has-visto { background-color: rgba(239, 68, 68, 0.2) !important; }
+        /* CALENDÁRIO */
+        #calendar { background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; }
+        .fc-daygrid-day.has-visto { background-color: rgba(239, 68, 68, 0.15) !important; border: 1px solid var(--danger) !important; }
 
-        /* ORGANIZAÇÃO DOS INPUTS DE CABEÇALHO */
-        .header-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
-            gap: 10px; 
-            margin: 20px 0;
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-
-        /* TABELA BEM DISTANTE DO CALENDÁRIO */
-        .table-section { margin-top: 30px; clear: both; }
+        /* TABELA DE VISTOS */
+        .table-section { margin-top: 20px; border-top: 2px solid #cbd5e1; padding-top: 20px; }
         .table-wrapper { overflow-x: auto; border-radius: 8px; border: 1px solid #ddd; background: white; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th, td { padding: 12px; border: 1px solid #eee; text-align: center; }
-        th:first-child, td:first-child { text-align: left; width: 250px; }
-        th { background: #f8fafc; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border: 1px solid #eee; text-align: center; }
+        th { background: #f8fafc; font-size: 12px; }
+        td:first-child { text-align: left; font-weight: 500; min-width: 180px; }
 
-        .chk-v { width: 22px; height: 22px; accent-color: var(--success); }
-        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        /* AJUSTES - ORDENAÇÃO */
+        .aluno-item { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; }
+        .move-btns { display: flex; gap: 5px; }
+        .move-btn { background: #f1f5f9; border: 1px solid #ccc; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+        .move-btn:hover { background: #e2e8f0; }
 
-        .btn { background: var(--accent); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 15px; font-size: 16px; }
+        .header-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 15px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 10px; }
         .btn-red { background: var(--danger); }
-        .btn-small { padding: 5px 8px; font-size: 11px; width: auto; margin: 0; }
-        
-        .selected-day-box { background: #e0f2fe; padding: 15px; border-radius: 8px; border-left: 5px solid var(--accent); margin-bottom: 15px; }
+        .btn-success { background: var(--success); }
     </style>
 </head>
 <body>
 
-<div id="aba-login" class="login-screen">
-    <div class="login-card">
-        <h2>🔒 Classroom Pro</h2>
-        <input type="password" id="senha" placeholder="Senha" onkeypress="if(event.key==='Enter') logar()">
-        <button class="btn" onclick="logar()">Entrar</button>
-    </div>
-</div>
-
-<nav id="menu" class="hidden">
-    <button onclick="mudarAba('vistos')" class="nav-btn active" id="nb-vistos">Vistos</button>
-    <button onclick="mudarAba('conteudos')" class="nav-btn" id="nb-conteudos">Conteúdos</button>
-    <button onclick="mudarAba('siap')" class="nav-btn" id="nb-siap">SIAP</button>
-    <button onclick="mudarAba('ajustes')" class="nav-btn" id="nb-ajustes">Ajustes</button>
+<nav>
+    <button onclick="mudarAba('vistos')" class="nav-btn active" id="nb-vistos">📅 Vistos</button>
+    <button onclick="mudarAba('conteudos')" class="nav-btn" id="nb-conteudos">📝 Conteúdos</button>
+    <button onclick="mudarAba('siap')" class="nav-btn" id="nb-siap">📊 SIAP</button>
+    <button onclick="mudarAba('ajustes')" class="nav-btn" id="nb-ajustes">⚙️ Ajustes</button>
 </nav>
 
-<div id="app" class="container hidden">
-    
+<div class="container">
     <div id="sec-vistos" class="aba-content">
         <div class="card">
-            <h3>📅 Gerenciar Vistos</h3>
-            <label>Selecione a Turma:</label>
+            <h3>Registro de Vistos</h3>
             <select id="v-turma" onchange="carregarCalendario()"></select>
+            <div id='calendar' style="margin-top:15px;"></div>
             
-            <div style="margin-top: 20px;">
-                <div id='calendar'></div>
+            <div id="area-edicao" class="hidden">
+                <div style="background:#e0f2fe; padding:10px; border-radius:8px; margin-bottom:10px;">
+                    <strong>Editando Dia:</strong> <span id="label-data"></span>
+                </div>
+                <div class="header-grid" id="v-headers"></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr id="thr-vistos"></tr></thead>
+                        <tbody id="tbody-vistos"></tbody>
+                    </table>
+                </div>
+                <button class="btn" onclick="salvarVistos()">💾 Salvar Vistos</button>
             </div>
-
-            <div class="selected-day-box">
-                <strong>Data Selecionada:</strong> 
-                <input type="date" id="v-data" style="width: 200px; display: inline-block; margin-left: 10px;" onchange="carregarTabelaVistos()">
-            </div>
-
-            <p style="margin-top: 20px; font-weight: bold;">Títulos das Atividades (Opcional):</p>
-            <div class="header-grid" id="v-headers"></div>
-        </div>
-
-        <div class="table-section">
-            <div class="table-wrapper">
-                <table>
-                    <thead><tr id="thr-vistos"></tr></thead>
-                    <tbody id="tbody-vistos"></tbody>
-                </table>
-            </div>
-            <button class="btn" onclick="salvarVistos()">💾 SALVAR VISTOS DO DIA</button>
         </div>
     </div>
 
     <div id="sec-conteudos" class="aba-content hidden">
         <div class="card">
-            <h3>📝 Novo Conteúdo</h3>
+            <h3>Conteúdo da Aula</h3>
             <input type="date" id="c-data">
-            <textarea id="c-texto" rows="3" placeholder="Descrição da aula..."></textarea>
-            <div id="c-replicar" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 10px 0;"></div>
-            <button class="btn" onclick="salvarConteudo()">Salvar Conteúdo</button>
+            <textarea id="c-texto" rows="3" placeholder="O que foi trabalhado hoje?"></textarea>
+            <div id="c-replicar" style="margin: 10px 0;"></div>
+            <button class="btn" onclick="salvarConteudo()">Salvar no Diário</button>
         </div>
         <div class="card">
             <select id="c-turma-select" onchange="listarHistoricoConteudo()"></select>
@@ -129,30 +99,30 @@
 
     <div id="sec-siap" class="aba-content hidden">
         <div class="card">
-            <h3>📊 Notas SIAP</h3>
-            <button class="btn" onclick="gerarRelatorio()">Calcular Totais</button>
-            <button class="btn" style="background:var(--success)" onclick="exportarParaSIAP()">📋 Copiar Notas</button>
+            <h3>Fechamento de Notas</h3>
+            <button class="btn" onclick="gerarRelatorio()">1. Calcular Notas</button>
+            <button class="btn btn-success" onclick="exportarParaSIAP()">2. Copiar para o SIAP</button>
         </div>
         <div id="relatorio-final"></div>
     </div>
 
     <div id="sec-ajustes" class="aba-content hidden">
         <div class="card">
-            <h3>➕ Importar Turma</h3>
-            <input type="text" id="nova-turma-nome" placeholder="NOME DA TURMA">
-            <textarea id="nova-turma-lista" rows="3" placeholder="Lista de nomes..."></textarea>
+            <h3>Criar Nova Turma</h3>
+            <input type="text" id="nova-turma-nome" placeholder="Ex: 9º ANO A">
+            <textarea id="nova-turma-lista" rows="3" placeholder="Cole a lista de nomes aqui..."></textarea>
             <button class="btn" onclick="criarTurma()">Criar Turma</button>
         </div>
         <div class="card">
+            <h3>Organizar Alunos (Ordem SIAP)</h3>
             <select id="adj-turma" onchange="listarAlunosAdj()"></select>
-            <div id="lista-adj-alunos" style="margin-top:15px; max-height: 250px; overflow-y: auto;"></div>
+            <div id="lista-adj-alunos" style="margin-top:15px;"></div>
         </div>
-        <button class="btn btn-red" onclick="resetTotal()">🔥 RESET GERAL</button>
+        <button class="btn btn-red" onclick="resetTotal()">🔥 Reset Geral</button>
     </div>
 </div>
 
 <script>
-    // Configurações do Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCTu2YNF6TXWGdjBtRrDW1dL5e5MoIPI4c",
         authDomain: "classroom-b14f4.firebaseapp.com",
@@ -166,49 +136,24 @@
     const db = firebase.database();
     let calendar;
 
-    function logar() {
-        if(document.querySelector('#senha').value === '2203') {
-            document.getElementById('aba-login').classList.add('hidden');
-            document.getElementById('menu').classList.remove('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            init();
-        } else { alert("Senha Incorreta!"); }
-    }
-
     function mudarAba(id) {
         document.querySelectorAll('.aba-content').forEach(a => a.classList.add('hidden'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('sec-' + id).classList.remove('hidden');
         document.getElementById('nb-' + id).classList.add('active');
-        if(id === 'vistos' && calendar) {
-            setTimeout(() => { calendar.render(); calendar.updateSize(); }, 200);
-        }
-        if(id === 'conteudos') listarHistoricoConteudo();
+        if(id === 'vistos' && calendar) { setTimeout(() => { calendar.render(); calendar.updateSize(); }, 200); }
     }
 
-    function init() {
-        const hoje = new Date().toISOString().split('T')[0];
-        document.getElementById('v-data').value = hoje;
-        document.getElementById('c-data').value = hoje;
-        
-        let hHtml = '';
-        for(let i=1; i<=6; i++) hHtml += `<div><label style="font-size:11px">Visto ${i}</label><input type="text" id="h${i}" onchange="salvarHeaders()" placeholder="Ex: Tarefa"></div>`;
-        document.getElementById('v-headers').innerHTML = hHtml;
-        
-        initCalendar();
-        carregarMenus();
-    }
-
+    // --- CALENDÁRIO E VISTOS ---
     function initCalendar() {
         calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
             initialView: 'dayGridMonth',
             locale: 'pt-br',
-            contentHeight: 350,
-            headerToolbar: { left: 'prev,next', center: 'title', right: '' },
+            contentHeight: 300,
             dateClick: function(info) {
-                document.getElementById('v-data').value = info.dateStr;
-                carregarTabelaVistos();
-                document.querySelector('.table-section').scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('label-data').innerText = info.dateStr.split('-').reverse().join('/');
+                document.getElementById('area-edicao').classList.remove('hidden');
+                carregarTabelaVistos(info.dateStr);
             }
         });
         calendar.render();
@@ -217,61 +162,64 @@
     function carregarMenus() {
         db.ref('turmas').on('value', snap => {
             const turmas = snap.val() || {};
-            let opts = ''; let checks = '';
-            Object.keys(turmas).sort().forEach(t => {
-                opts += `<option value="${t}">${t}</option>`;
-                checks += `<label><input type="checkbox" class="rep-check" value="${t}"> ${t}</label> `;
-            });
+            let opts = '';
+            Object.keys(turmas).sort().forEach(t => opts += `<option value="${t}">${t}</option>`);
             document.getElementById('v-turma').innerHTML = opts;
             document.getElementById('adj-turma').innerHTML = opts;
             document.getElementById('c-turma-select').innerHTML = opts;
-            document.getElementById('c-replicar').innerHTML = checks;
             carregarCalendario();
         });
     }
 
     function carregarCalendario() {
         const t = document.getElementById('v-turma').value;
-        if(!t) return;
         db.ref(`vistos/${t}`).on('value', snap => {
             const dias = snap.val() || {};
-            const events = Object.keys(dias).map(data => ({ start: data, display: 'background', classNames: ['has-visto'] }));
+            const events = Object.keys(dias).map(d => ({ start: d, display: 'background', classNames: ['has-visto'] }));
             calendar.removeAllEvents();
             calendar.addEventSource(events);
-            carregarTabelaVistos();
         });
     }
 
-    async function carregarTabelaVistos() {
+    async function carregarTabelaVistos(dataSel) {
         const t = document.getElementById('v-turma').value;
-        const d = document.getElementById('v-data').value;
-        if(!t) return;
-        const [sAl, sVi, sHe] = await Promise.all([db.ref('turmas/'+t).once('value'), db.ref(`vistos/${t}/${d}`).once('value'), db.ref(`headers/${t}`).once('value')]);
-        const alunos = sAl.val() || []; const marcados = sVi.val() || {}; const heads = sHe.val() || {};
-        for(let i=1; i<=6; i++) document.getElementById('h'+i).value = heads['h'+i] || '';
-        document.getElementById('thr-vistos').innerHTML = `<th>Nome do Aluno</th>` + Array.from({length:6}, (_,i)=>`<th>${i+1}</th>`).join('');
+        const [sAl, sVi, sHe] = await Promise.all([
+            db.ref('turmas/'+t).once('value'), 
+            db.ref(`vistos/${t}/${dataSel}`).once('value'), 
+            db.ref(`headers/${t}`).once('value')
+        ]);
+        const alunos = sAl.val() || [];
+        const marcados = sVi.val() || {};
+        const heads = sHe.val() || {};
+
+        let hHtml = '';
+        for(let i=1; i<=6; i++) hHtml += `<input type="text" id="h${i}" placeholder="Título ${i}" value="${heads['h'+i] || ''}" onchange="salvarHeaders()">`;
+        document.getElementById('v-headers').innerHTML = hHtml;
+
+        document.getElementById('thr-vistos').innerHTML = `<th>Aluno</th>` + [1,2,3,4,5,6].map(n => `<th>${n}</th>`).join('');
         let html = '';
         alunos.forEach((nome, idx) => {
             html += `<tr><td>${nome}</td>`;
             for(let v=1; v<=6; v++) {
-                let isChecked = (marcados[idx] && marcados[idx][v]) ? 'checked' : '';
-                html += `<td><input type="checkbox" class="chk-v" data-idx="${idx}" data-v="${v}" ${isChecked}></td>`;
+                let check = (marcados[idx] && marcados[idx][v]) ? 'checked' : '';
+                html += `<td><input type="checkbox" class="chk-v" data-idx="${idx}" data-v="${v}" ${check}></td>`;
             }
             html += `</tr>`;
         });
         document.getElementById('tbody-vistos').innerHTML = html;
+        document.getElementById('area-edicao').dataset.data = dataSel;
     }
 
     function salvarVistos() {
         const t = document.getElementById('v-turma').value;
-        const d = document.getElementById('v-data').value;
+        const d = document.getElementById('area-edicao').dataset.data;
         let dados = {};
         document.querySelectorAll('.chk-v').forEach(el => {
             const {idx, v} = el.dataset;
             if(!dados[idx]) dados[idx] = {};
             dados[idx][v] = el.checked;
         });
-        db.ref(`vistos/${t}/${d}`).set(dados).then(() => alert("✅ Vistos salvos com sucesso!"));
+        db.ref(`vistos/${t}/${d}`).set(dados).then(() => alert("Vistos Salvos!"));
     }
 
     function salvarHeaders() {
@@ -280,34 +228,39 @@
         db.ref(`headers/${t}`).set(h);
     }
 
-    // --- Outras Funções ---
-    function listarHistoricoConteudo() {
-        const t = document.getElementById('c-turma-select').value;
-        db.ref(`diarios/${t}`).once('value', snap => {
-            const itens = snap.val() || {};
+    // --- AJUSTES: MOVER ALUNOS ---
+    function listarAlunosAdj() {
+        const t = document.getElementById('adj-turma').value;
+        db.ref('turmas/'+t).once('value', snap => {
+            const alunos = snap.val() || [];
             let html = '';
-            Object.entries(itens).reverse().forEach(([id, obj]) => {
-                html += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
-                <span><strong>${obj.data.split('-').reverse().join('/')}:</strong> ${obj.conteudo}</span>
-                <button class="btn btn-small btn-red" onclick="excluirConteudo('${id}')">X</button></div>`;
+            alunos.forEach((nome, i) => {
+                html += `<div class="aluno-item">
+                    <span>${i+1}. ${nome}</span>
+                    <div class="move-btns">
+                        <button class="move-btn" onclick="moverAluno('${t}', ${i}, -1)">↑</button>
+                        <button class="move-btn" onclick="moverAluno('${t}', ${i}, 1)">↓</button>
+                    </div>
+                </div>`;
             });
-            document.getElementById('lista-historico-c').innerHTML = html;
+            document.getElementById('lista-adj-alunos').innerHTML = html;
         });
     }
 
-    function salvarConteudo() {
-        const txt = document.getElementById('c-texto').value;
-        const data = document.getElementById('c-data').value;
-        const tPrincipal = document.getElementById('c-turma-select').value;
-        if(!txt) return alert("Digite algo!");
-        const turmas = Array.from(document.querySelectorAll('.rep-check:checked')).map(c => c.value);
-        turmas.push(tPrincipal);
-        [...new Set(turmas)].forEach(t => db.ref(`diarios/${t}`).push({ data, conteudo: txt }));
-        alert("Conteúdo Salvo!");
-        document.getElementById('c-texto').value = "";
-        listarHistoricoConteudo();
+    function moverAluno(turma, index, direcao) {
+        db.ref('turmas/'+turma).once('value', snap => {
+            let lista = snap.val();
+            let novoIndex = index + direcao;
+            if(novoIndex >= 0 && novoIndex < lista.length) {
+                let temp = lista[index];
+                lista[index] = lista[novoIndex];
+                lista[novoIndex] = temp;
+                db.ref('turmas/'+turma).set(lista).then(() => listarAlunosAdj());
+            }
+        });
     }
 
+    // --- SIAP: COPIAR NOTAS ---
     async function gerarRelatorio() {
         const t = document.getElementById('v-turma').value;
         const [sAl, sVi] = await Promise.all([db.ref('turmas/'+t).once('value'), db.ref(`vistos/${t}`).once('value')]);
@@ -317,30 +270,41 @@
             Object.entries(dia).forEach(([idx, v]) => { if(res[idx]) res[idx].total += Object.values(v).filter(x => x === true).length; });
         });
         let teto = Math.max(...res.map(a => a.total), 1);
-        let h = `<div class="table-wrapper"><table><thead><tr><th>Aluno</th><th>Total Vistos</th><th>Nota Final</th></tr></thead><tbody>`;
+        let h = `<table><tr><th>Aluno</th><th>Nota</th></tr>`;
         res.forEach(a => {
             let nota = ((a.total * 10) / teto).toFixed(1).replace('.', ',');
-            h += `<tr><td>${a.nome}</td><td>${a.total}</td><td style="color:blue; font-weight:bold">${nota}</td></tr>`;
+            h += `<tr><td class="nome-siap">${a.nome}</td><td class="nota-siap">${nota}</td></tr>`;
         });
-        document.getElementById('relatorio-final').innerHTML = h + `</tbody></table></div>`;
+        document.getElementById('relatorio-final').innerHTML = h + `</table>`;
+    }
+
+    function exportarParaSIAP() {
+        let texto = "";
+        let linhas = document.querySelectorAll('#relatorio-final tr');
+        if(linhas.length <= 1) return alert("Gere o relatório primeiro!");
+        
+        linhas.forEach((tr, i) => {
+            if(i > 0) {
+                let nome = tr.querySelector('.nome-siap').innerText;
+                let nota = tr.querySelector('.nota-siap').innerText;
+                texto += `${nome}\t${nota}\n`;
+            }
+        });
+
+        navigator.clipboard.writeText(texto).then(() => {
+            alert("✅ Notas copiadas para a área de transferência!\nAgora é só colar no SIAP.");
+        });
     }
 
     function criarTurma() {
-        const nome = document.getElementById('nova-turma-nome').value.toUpperCase();
-        const lista = document.getElementById('nova-turma-lista').value.split('\n').map(n => n.trim()).filter(n => n.length > 2);
-        if(!nome || lista.length === 0) return alert("Erro nos dados!");
-        db.ref('turmas/'+nome).set(lista).then(() => { alert("Turma Criada!"); document.getElementById('nova-turma-lista').value=""; });
+        const n = document.getElementById('nova-turma-nome').value.toUpperCase();
+        const l = document.getElementById('nova-turma-lista').value.split('\n').map(x => x.trim()).filter(x => x.length > 2);
+        db.ref('turmas/'+n).set(l).then(() => alert("Turma Criada!"));
     }
 
-    async function resetTotal() {
-        if(confirm("Deseja apagar TUDO?")) {
-            if(confirm("CERTEZA ABSOLUTA?")) {
-                await db.ref('/').remove();
-                alert("Sistema Zerado!");
-                location.reload();
-            }
-        }
-    }
+    function resetTotal() { if(confirm("Apagar TUDO?")) db.ref('/').remove().then(() => location.reload()); }
+
+    window.onload = () => { initCalendar(); carregarMenus(); };
 </script>
 </body>
 </html>

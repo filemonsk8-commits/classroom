@@ -11,7 +11,7 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
 
     <style>
-        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f1f5f9; --white: #ffffff; --text: #1e293b; --danger: #ef4444; }
+        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f1f5f9; --white: #ffffff; --text: #1e293b; --danger: #ef4444; --purple: #8b5cf6; --gray: #64748b; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
         
         #login-screen { position: fixed; inset: 0; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 10000; color: white; }
@@ -21,14 +21,19 @@
         nav { background: var(--white); padding: 10px; display: flex; gap: 8px; position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid #e2e8f0; overflow-x: auto; }
         .nav-btn { background: #e2e8f0; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; }
         .nav-btn.active { background: var(--accent); color: white; }
+        
         .container { padding: 15px; max-width: 950px; margin: 0 auto; }
         .card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .hidden { display: none !important; }
+        
         .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-danger { background: var(--danger); margin-top: 20px; }
-        .table-wrapper { overflow-x: auto; border-radius: 8px; border: 1px solid #ddd; background: white; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px; border: 1px solid #eee; text-align: center; }
+        .btn-sm { width: auto; padding: 4px 8px; margin: 0; font-size: 11px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 8px; border: 1px solid #eee; text-align: center; font-size: 14px; }
+        
+        .item-aluno { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
+        .controles-ordem { display: flex; gap: 3px; }
         .turma-badge { background: #dbeafe; color: #1e40af; padding: 10px; border-radius: 8px; font-weight: bold; display: block; margin-bottom: 15px; text-align: center; }
     </style>
 </head>
@@ -59,7 +64,7 @@
                 <div id='calendar-vistos' style="margin-top:15px;"></div>
                 <div id="area-vistos-edit" class="hidden">
                     <div class="turma-badge" id="label-data-visto"></div>
-                    <div class="table-wrapper">
+                    <div style="overflow-x:auto;">
                         <table><thead><tr id="thr-vistos"></tr></thead><tbody id="tbody-vistos"></tbody></table>
                     </div>
                     <button class="btn" onclick="salvarVistos()">💾 Salvar Vistos</button>
@@ -74,19 +79,20 @@
                 <div id='calendar-conteudo' style="margin-top:15px;"></div>
                 <div id="area-conteudo-edit" class="hidden">
                     <div class="turma-badge" id="label-data-cont"></div>
-                    <textarea id="txt-conteudo" style="width:100%; height:120px; padding:10px; border-radius:8px;" placeholder="Conteúdo da aula..."></textarea>
-                    <button class="btn" onclick="salvarConteudo()">💾 Salvar Conteúdo</button>
+                    <textarea id="txt-conteudo" style="width:100%; height:100px; padding:10px; border-radius:8px;" placeholder="Conteúdo ministrado..."></textarea>
+                    <button class="btn" onclick="salvarConteudo()">💾 Salvar</button>
                 </div>
             </div>
         </div>
 
         <div id="sec-siap" class="aba-content hidden">
             <div class="card">
-                <h3>SIAP - Fechamento</h3>
+                <h3>SIAP - Ferramentas Prof. Eduardo</h3>
                 <button class="btn" onclick="gerarRelatorio()">1. Gerar Médias</button>
-                <button class="btn" style="background:#8b5cf6;" onclick="prepararInjecaoAlvo()">2. Copiar Injetor</button>
+                <button class="btn" style="background:var(--purple);" onclick="prepararInjecaoAlvo()">2. Copiar Injetor (Notas)</button>
+                <button class="btn" style="background:var(--gray);" onclick="prepararLimpezaSIAP()">3. Copiar Borracha (Limpar)</button>
             </div>
-            <div id="relatorio-final" class="table-wrapper hidden"></div>
+            <div id="relatorio-final" style="overflow-x:auto;" class="hidden"></div>
         </div>
 
         <div id="sec-ajustes" class="aba-content hidden">
@@ -98,16 +104,16 @@
                 </div>
             </div>
             <div class="card">
-                <h3>Alunos</h3>
+                <h3>Reordenar Alunos (Sincronizar com SIAP)</h3>
                 <select id="adj-turma" onchange="listarAlunosAdj()" style="width:100%; padding:10px; border-radius:8px;"></select>
-                <textarea id="raw-alunos" style="width:100%; height:80px; margin-top:10px; padding:10px; border-radius:8px;" placeholder="Lista de nomes..."></textarea>
-                <button class="btn" onclick="importarAlunos()">📥 Importar</button>
-                <div id="lista-adj-alunos" style="margin-top:15px;"></div>
+                <textarea id="raw-alunos" style="width:100%; height:80px; margin-top:10px; padding:10px; border-radius:8px;" placeholder="Importar nova lista..."></textarea>
+                <button class="btn" onclick="importarAlunos()">📥 Importar Lista</button>
+                
+                <div id="lista-adj-alunos" style="margin-top:20px; border:1px solid #ddd; border-radius:8px; background:white;"></div>
+                <button id="btn-save-ordem" class="btn hidden" onclick="salvarOrdemAlunos()">💾 Salvar Nova Ordem</button>
             </div>
-            <div class="card" style="border: 2px solid var(--danger);">
-                <h3 style="color:var(--danger);">Zona de Perigo</h3>
-                <p>Isso apagará TODOS os dados do banco de dados permanentemente.</p>
-                <button class="btn btn-danger" onclick="resetTotal()">🔥 RESETAR TODO O SISTEMA</button>
+            <div class="card">
+                <button class="btn" style="background:var(--danger);" onclick="resetTotal()">🔥 RESETAR SISTEMA</button>
             </div>
         </div>
     </div>
@@ -126,161 +132,165 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
-    let calV, calC, dataSelVisto = "", dataSelCont = "";
+    let calV, calC, dataSelVisto = "", dataSelCont = "", listaAlunosTemp = [];
 
     function fazerLogin() {
-        const e = document.getElementById('l-email').value;
-        const p = document.getElementById('l-pass').value;
+        const e = document.getElementById('l-email').value, p = document.getElementById('l-pass').value;
         auth.signInWithEmailAndPassword(e, p).then(() => {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
             init();
-        }).catch(err => alert("Acesso negado!"));
+        }).catch(() => alert("Acesso negado!"));
     }
 
     function init() {
         calV = new FullCalendar.Calendar(document.getElementById('calendar-vistos'), {
             initialView: 'dayGridMonth', locale: 'pt-br', contentHeight: 300,
-            dateClick: (info) => {
-                dataSelVisto = info.dateStr;
-                document.getElementById('label-data-visto').innerText = "Data: " + info.dateStr;
-                document.getElementById('area-vistos-edit').classList.remove('hidden');
-                carregarTabelaVistos();
-            }
+            dateClick: (i) => { dataSelVisto = i.dateStr; document.getElementById('label-data-visto').innerText = "Data: "+i.dateStr; document.getElementById('area-vistos-edit').classList.remove('hidden'); carregarTabelaVistos(); }
         });
         calC = new FullCalendar.Calendar(document.getElementById('calendar-conteudo'), {
             initialView: 'dayGridMonth', locale: 'pt-br', contentHeight: 300,
-            dateClick: (info) => {
-                dataSelCont = info.dateStr;
-                document.getElementById('label-data-cont').innerText = "Data: " + info.dateStr;
-                document.getElementById('area-conteudo-edit').classList.remove('hidden');
-                db.ref(`conteudo/${document.getElementById('c-turma').value}/${dataSelCont}`).once('value', s => {
-                    document.getElementById('txt-conteudo').value = s.val() || "";
-                });
-            }
+            dateClick: (i) => { dataSelCont = i.dateStr; document.getElementById('label-data-cont').innerText = "Data: "+i.dateStr; document.getElementById('area-conteudo-edit').classList.remove('hidden'); carregarTextoConteudo(); }
         });
         calV.render(); calC.render();
         carregarMenus();
     }
 
+    function carregarMenus() {
+        db.ref('turmas').on('value', s => {
+            let opts = ''; Object.keys(s.val()||{}).sort().forEach(t => opts += `<option value="${t}">${t}</option>`);
+            document.getElementById('v-turma').innerHTML = opts; document.getElementById('c-turma').innerHTML = opts; document.getElementById('adj-turma').innerHTML = opts;
+        });
+    }
+
     function mudarAba(id) {
         document.querySelectorAll('.aba-content').forEach(a => a.classList.add('hidden'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('sec-' + id).classList.remove('hidden');
-        document.getElementById('nb-' + id).classList.add('active');
+        document.getElementById('sec-'+id).classList.remove('hidden');
+        document.getElementById('nb-'+id).classList.add('active');
         if(id==='vistos') setTimeout(()=>calV.render(), 100);
         if(id==='conteudo') setTimeout(()=>calC.render(), 100);
     }
 
-    function carregarMenus() {
-        db.ref('turmas').on('value', snap => {
-            let opts = ''; Object.keys(snap.val() || {}).sort().forEach(t => { opts += `<option value="${t}">${t}</option>`; });
-            document.getElementById('v-turma').innerHTML = opts;
-            document.getElementById('c-turma').innerHTML = opts;
-            document.getElementById('adj-turma').innerHTML = opts;
-        });
+    // AJUSTES: ORDENAÇÃO COM SETAS RÁPIDAS
+    function listarAlunosAdj() {
+        const t = document.getElementById('adj-turma').value;
+        db.ref('turmas/'+t).once('value', s => { listaAlunosTemp = s.val() || []; renderizarListaOrdenavel(); });
     }
 
-    function carregarCalendario(tipo) {
-        const t = document.getElementById(tipo === 'vistos' ? 'v-turma' : 'c-turma').value;
-        db.ref(`${tipo}/${t}`).on('value', snap => {
-            const cal = tipo === 'vistos' ? calV : calC;
-            cal.removeAllEvents();
-            Object.keys(snap.val() || {}).forEach(d => cal.addEvent({ start: d, display: 'background', color: tipo === 'vistos' ? '#fda4af' : '#6ee7b7' }));
+    function renderizarListaOrdenavel() {
+        let h = '';
+        listaAlunosTemp.forEach((n, i) => {
+            h += `<div class="item-aluno">
+                <span style="font-size:13px;">${i+1}. ${n}</span>
+                <div class="controles-ordem">
+                    <button class="btn btn-sm" title="Mover para o topo" onclick="moverTopo(${i})">⏫</button>
+                    <button class="btn btn-sm" onclick="mover(${i}, -1)">↑</button>
+                    <button class="btn btn-sm" onclick="mover(${i}, 1)">↓</button>
+                    <button class="btn btn-sm" title="Mover para o final" onclick="moverFinal(${i})">⏬</button>
+                </div>
+            </div>`;
         });
+        document.getElementById('lista-adj-alunos').innerHTML = h;
+        document.getElementById('btn-save-ordem').classList.remove('hidden');
     }
 
+    function mover(idx, dir) {
+        let nova = idx + dir;
+        if(nova < 0 || nova >= listaAlunosTemp.length) return;
+        [listaAlunosTemp[idx], listaAlunosTemp[nova]] = [listaAlunosTemp[nova], listaAlunosTemp[idx]];
+        renderizarListaOrdenavel();
+    }
+
+    function moverTopo(idx) {
+        const item = listaAlunosTemp.splice(idx, 1)[0];
+        listaAlunosTemp.unshift(item);
+        renderizarListaOrdenavel();
+    }
+
+    function moverFinal(idx) {
+        const item = listaAlunosTemp.splice(idx, 1)[0];
+        listaAlunosTemp.push(item);
+        renderizarListaOrdenavel();
+    }
+
+    function salvarOrdemAlunos() {
+        const t = document.getElementById('adj-turma').value;
+        db.ref('turmas/'+t).set(listaAlunosTemp).then(() => alert("✅ Ordem salva!"));
+    }
+
+    // BORRACHA SIAP
+    function prepararLimpezaSIAP() {
+        const script = `(function(){
+            alert("BORRACHA ATIVADA! Clique no 1º campo de nota para limpar tudo abaixo.");
+            function g(d){let i=Array.from(d.querySelectorAll('input[type="text"]:not([readonly])'));d.querySelectorAll('iframe').forEach(f=>{try{i=i.concat(g(f.contentDocument))}catch(e){}});return i}
+            const c=g(document);
+            c.forEach(el=>{
+                el.style.border="3px solid yellow";
+                el.onclick=function(){
+                    if(!confirm("Limpar notas a partir daqui?")) return;
+                    let s=c.indexOf(this);
+                    for(let i=0;i<60;i++){
+                        let t=c[s+i];
+                        if(t){
+                            t.value="";
+                            t.dispatchEvent(new Event('change',{bubbles:true}));
+                            t.style.backgroundColor="#fee2e2";
+                        }
+                    }
+                    alert("Limpo!");
+                }
+            });
+        })()`;
+        copy(script);
+    }
+
+    // RESTANTE DAS FUNÇÕES (VISTOS, CONTEÚDO, SIAP)
     async function carregarTabelaVistos() {
         const t = document.getElementById('v-turma').value;
         const [sA, sV] = await Promise.all([db.ref('turmas/'+t).once('value'), db.ref(`vistos/${t}/${dataSelVisto}`).once('value')]);
-        const alunos = sA.val() || []; const marcados = sV.val() || {};
+        const alunos = sA.val() || [], marcados = sV.val() || {};
         document.getElementById('thr-vistos').innerHTML = `<th>Aluno</th>` + [1,2,3,4,5,6].map(n => `<th>${n}</th>`).join('');
-        let html = '';
-        alunos.forEach((nome, idx) => {
-            html += `<tr><td style="text-align:left">${nome}</td>`;
-            for(let v=1; v<=6; v++) {
-                let chk = (marcados[idx] && marcados[idx][v]) ? 'checked' : '';
-                html += `<td><input type="checkbox" class="chk-v" data-idx="${idx}" data-v="${v}" ${chk}></td>`;
-            }
-            html += `</tr>`;
+        let h = ''; alunos.forEach((n, i) => {
+            h += `<tr><td style="text-align:left">${n}</td>`;
+            for(let v=1; v<=6; v++) h += `<td><input type="checkbox" class="chk-v" data-idx="${i}" data-v="${v}" ${(marcados[i]&&marcados[i][v])?'checked':''}></td>`;
+            h += `</tr>`;
         });
-        document.getElementById('tbody-vistos').innerHTML = html;
+        document.getElementById('tbody-vistos').innerHTML = h;
     }
 
     function salvarVistos() {
-        const t = document.getElementById('v-turma').value;
-        let d = {}; document.querySelectorAll('.chk-v').forEach(el => {
-            const {idx, v} = el.dataset; if(!d[idx]) d[idx] = {}; d[idx][v] = el.checked;
-        });
-        db.ref(`vistos/${t}/${dataSelVisto}`).set(d).then(() => alert("Salvo!"));
-    }
-
-    function salvarConteudo() {
-        const t = document.getElementById('c-turma').value;
-        db.ref(`conteudo/${t}/${dataSelCont}`).set(document.getElementById('txt-conteudo').value).then(() => alert("Salvo!"));
-    }
-
-    function criarTurma() {
-        const n = document.getElementById('new-turma').value;
-        if(n) db.ref(`turmas/${n}`).set(["Novo Aluno"]).then(() => alert("Criada!"));
-    }
-
-    function importarAlunos() {
-        const t = document.getElementById('adj-turma').value;
-        const l = document.getElementById('raw-alunos').value.split('\n').filter(x => x.trim() !== "");
-        if(l.length > 0) db.ref(`turmas/${t}`).set(l).then(() => alert("Importado!"));
-    }
-
-    function listarAlunosAdj() {
-        const t = document.getElementById('adj-turma').value;
-        db.ref('turmas/'+t).once('value', s => {
-            let h = '<h4>Alunos:</h4>'; 
-            (s.val()||[]).forEach((n, i) => {
-                h += `<div style="font-size:0.85em; border-bottom:1px solid #eee; padding:2px;">${i+1}. ${n}</div>`;
-            });
-            document.getElementById('lista-adj-alunos').innerHTML = h;
-        });
-    }
-
-    function resetTotal() {
-        if(confirm("TEM CERTEZA? Isso vai apagar TODAS as turmas, notas e diários de conteúdo!")) {
-            const pass = prompt("Digite 'APAGAR' para confirmar:");
-            if(pass === "APAGAR") {
-                db.ref('/').remove().then(() => {
-                    alert("Sistema reiniciado. A página será atualizada.");
-                    location.reload();
-                });
-            }
-        }
+        const t = document.getElementById('v-turma').value; let d = {};
+        document.querySelectorAll('.chk-v').forEach(el => { const {idx, v} = el.dataset; if(!d[idx]) d[idx] = {}; d[idx][v] = el.checked; });
+        db.ref(`vistos/${t}/${dataSelVisto}`).set(d).then(() => alert("Vistos Salvos!"));
     }
 
     async function gerarRelatorio() {
         const t = document.getElementById('v-turma').value;
         const [sA, sV] = await Promise.all([db.ref('turmas/'+t).once('value'), db.ref(`vistos/${t}`).once('value')]);
-        const alunos = sA.val() || []; const todos = sV.val() || {};
+        const alunos = sA.val() || [], todos = sV.val() || {};
         let res = alunos.map(n => ({ n, total: 0 }));
-        Object.values(todos).forEach(dia => {
-            Object.entries(dia).forEach(([idx, v]) => { if(res[idx]) res[idx].total += Object.values(v).filter(x => x === true).length; });
-        });
+        Object.values(todos).forEach(dia => { Object.entries(dia).forEach(([idx, v]) => { if(res[idx]) res[idx].total += Object.values(v).filter(x => x === true).length; }); });
         let teto = Math.max(...res.map(a => a.total), 1);
         let h = `<table><tr><th>Aluno</th><th>Nota</th></tr>`;
-        res.forEach(a => {
-            let nota = ((a.total * 10) / teto).toFixed(1).replace('.', ',');
-            h += `<tr><td style="text-align:left">${a.n}</td><td class="nota-final">${nota}</td></tr>`;
-        });
+        res.forEach(a => h += `<tr><td style="text-align:left">${a.n}</td><td class="nota-final">${((a.total*10)/teto).toFixed(1).replace('.',',')}</td></tr>`);
         document.getElementById('relatorio-final').innerHTML = h + `</table>`;
         document.getElementById('relatorio-final').classList.remove('hidden');
     }
 
     function prepararInjecaoAlvo() {
-        const notas = document.querySelectorAll('.nota-final');
-        if (notas.length === 0) return alert("Gere as médias!");
-        let lista = Array.from(notas).map(n => n.innerText);
-        const script = `(function(){const n=${JSON.stringify(lista)};alert("Clique no 1º campo de nota.");function g(d){let i=Array.from(d.querySelectorAll('input[type="text"]:not([readonly])'));d.querySelectorAll('iframe').forEach(f=>{try{i=i.concat(g(f.contentDocument))}catch(e){}});return i}const c=g(document);c.forEach(el=>{el.style.border="3px solid yellow";el.onclick=function(){if(!confirm("Iniciar?"))return;let s=c.indexOf(this);n.forEach((v,i)=>{let t=c[s+i];if(t){t.value=v;t.dispatchEvent(new Event('change',{bubbles:true}));t.style.backgroundColor="#dcfce7";}});alert("OK!");}})})()`;
-        const tmp = document.createElement("textarea"); tmp.value = script; document.body.appendChild(tmp);
-        tmp.select(); document.execCommand('copy'); document.body.removeChild(tmp);
-        alert("Injetor copiado!");
+        const n = Array.from(document.querySelectorAll('.nota-final')).map(el => el.innerText);
+        const script = `(function(){const n=${JSON.stringify(n)};alert("Clique no 1º campo de nota.");function g(d){let i=Array.from(d.querySelectorAll('input[type="text"]:not([readonly])'));d.querySelectorAll('iframe').forEach(f=>{try{i=i.concat(g(f.contentDocument))}catch(e){}});return i}const c=g(document);c.forEach(el=>{el.style.border="3px solid yellow";el.onclick=function(){if(!confirm("Iniciar?"))return;let s=c.indexOf(this);n.forEach((v,i)=>{let t=c[s+i];if(t){t.value=v;t.dispatchEvent(new Event('change',{bubbles:true}));t.style.backgroundColor="#dcfce7";}});alert("OK!");}})})()`;
+        copy(script);
     }
+
+    function copy(txt) { const tmp = document.createElement("textarea"); tmp.value = txt; document.body.appendChild(tmp); tmp.select(); document.execCommand('copy'); document.body.removeChild(tmp); alert("Código Copiado!"); }
+    function carregarCalendario(tipo) { const t = document.getElementById(tipo === 'vistos' ? 'v-turma' : 'c-turma').value; db.ref(`${tipo}/${t}`).on('value', s => { const cal = tipo==='vistos'?calV:calC; cal.removeAllEvents(); Object.keys(s.val()||{}).forEach(d => cal.addEvent({start:d, display:'background', color:tipo==='vistos'?'#fda4af':'#6ee7b7'})); }); }
+    function carregarTextoConteudo() { db.ref(`conteudo/${document.getElementById('c-turma').value}/${dataSelCont}`).once('value', s => document.getElementById('txt-conteudo').value = s.val() || ""); }
+    function salvarConteudo() { db.ref(`conteudo/${document.getElementById('c-turma').value}/${dataSelCont}`).set(document.getElementById('txt-conteudo').value).then(() => alert("Salvo!")); }
+    function criarTurma() { const n = document.getElementById('new-turma').value; if(n) db.ref(`turmas/${n}`).set(["Novo Aluno"]).then(() => alert("Criada!")); }
+    function importarAlunos() { const t = document.getElementById('adj-turma').value, l = document.getElementById('raw-alunos').value.split('\n').filter(x => x.trim() !== ""); if(l.length > 0) db.ref(`turmas/${t}`).set(l).then(() => alert("Importado!")); }
+    function resetTotal() { if(confirm("RESETAR TUDO?")) { if(prompt("Digite APAGAR")==="APAGAR") db.ref('/').remove().then(()=>location.reload()); } }
 </script>
 </body>
 </html>

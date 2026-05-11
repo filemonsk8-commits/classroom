@@ -4,24 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classroom Pro | Prof. Eduardo</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+
     <style>
-        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f1f5f9; --white: #ffffff; --text: #1e293b; --success: #10b981; }
+        :root {
+            --primary: #0f172a; --accent: #3b82f6; --bg: #f1f5f9; --white: #ffffff;
+            --text: #1e293b; --success: #10b981; --warning: #f59e0b;
+        }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
+        
+        /* Navegação */
         nav { background: var(--white); padding: 10px; display: flex; gap: 10px; position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid #e2e8f0; overflow-x: auto; }
         .nav-btn { background: #e2e8f0; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; white-space: nowrap; cursor: pointer; }
         .nav-btn.active { background: var(--accent); color: white; }
+
         .container { padding: 15px; max-width: 950px; margin: 0 auto; }
         .card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .hidden { display: none; }
+
+        /* Tabelas */
         .table-wrapper { overflow-x: auto; border-radius: 8px; border: 1px solid #ddd; background: white; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 10px; border: 1px solid #eee; text-align: center; }
+        td:first-child { text-align: left; font-weight: 500; }
+
+        /* Estilos de inputs */
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
         .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-siap { background: #8b5cf6; }
-        .turma-badge { background: #dbeafe; color: #1e40af; padding: 10px; border-radius: 8px; font-weight: bold; display: block; margin-bottom: 15px; text-align: center; }
+        
+        .turma-badge { background: #dbeafe; color: #1e40af; padding: 10px; border-radius: 8px; font-weight: bold; display: block; margin-bottom: 15px; text-align: center; border: 1px solid #3b82f6; }
+        .nota-final { font-weight: bold; color: #1e40af; }
+        
+        .instrucoes { background: #fffbeb; border: 1px solid #fef3c7; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -35,30 +53,37 @@
 <div class="container">
     <div id="sec-vistos" class="aba-content">
         <div class="card">
-            <h3>Lançar Vistos</h3>
-            <select id="v-turma" onchange="carregarTudoVistos()" style="width:100%; padding:10px; border-radius:8px;"></select>
-            <div id='calendar-vistos' style="margin-top:15px; background: white;"></div>
+            <h3>Lançamento de Vistos</h3>
+            <select id="v-turma" onchange="carregarCalendarioVistos()"></select>
+            <div id='calendar-vistos' style="margin-top:15px;"></div>
+            
             <div id="area-vistos-edit" class="hidden">
-                <p>Editando: <b id="label-data-visto"></b></p>
+                <div class="turma-badge" id="label-data-visto"></div>
                 <div class="table-wrapper">
-                    <table><thead><tr id="thr-vistos"></tr></thead><tbody id="tbody-vistos"></tbody></table>
+                    <table>
+                        <thead><tr id="thr-vistos"></tr></thead>
+                        <tbody id="tbody-vistos"></tbody>
+                    </table>
                 </div>
-                <button class="btn" onclick="salvarVistos()">Salvar Vistos</button>
+                <button class="btn" onclick="salvarVistos()">💾 Salvar Vistos</button>
             </div>
         </div>
     </div>
 
     <div id="sec-siap" class="aba-content hidden">
         <div class="card">
-            <h3>Integração Automática SIAP</h3>
+            <h3>Fechamento e Exportação SIAP</h3>
             <div id="siap-turma-info"></div>
-            <button class="btn" onclick="gerarRelatorio()">1. Calcular Notas</button>
-            <button class="btn btn-siap" onclick="prepararInjecao()">2. Preparar Injeção SIAP</button>
-            <div id="instrucoes-siap" class="hidden" style="margin-top:15px; background: #fef3c7; padding:10px; border-radius:8px; font-size:13px; border:1px solid #f59e0b;">
-                <b>🚀 Próximo Passo:</b><br>
-                1. Vá na aba do SIAP.<br>
-                2. Aperte <b>F12</b> e clique em <b>Console</b>.<br>
-                3. Cole o código (Ctrl+V) e dê <b>Enter</b>.
+            <button class="btn" onclick="gerarRelatorio()">1. Calcular Médias</button>
+            <button class="btn btn-siap" onclick="prepararInjecao()">2. Copiar Código de Injeção</button>
+            
+            <div id="instrucoes-siap" class="instrucoes hidden">
+                <strong>🚀 Como injetar as notas no SIAP:</strong><br>
+                1. Vá para a aba do SIAP onde você lança as notas.<br>
+                2. Aperte <strong>F12</strong> no teclado e clique na aba <strong>Console</strong>.<br>
+                3. Se o navegador pedir, digite <code>allow pasting</code> e dê Enter.<br>
+                4. <strong>Cole (Ctrl+V)</strong> o código que acabei de copiar e dê <strong>Enter</strong>.<br>
+                5. As notas serão preenchidas automaticamente!
             </div>
         </div>
         <div id="relatorio-final" class="table-wrapper hidden"></div>
@@ -66,15 +91,15 @@
 
     <div id="sec-ajustes" class="aba-content hidden">
         <div class="card">
-            <h3>Ordem dos Alunos</h3>
-            <select id="adj-turma" onchange="listarAlunosAdj()" style="width:100%; padding:10px; border-radius:8px;"></select>
+            <h3>Gerenciar Turmas</h3>
+            <select id="adj-turma" onchange="listarAlunosAdj()"></select>
             <div id="lista-adj-alunos" style="margin-top:15px;"></div>
         </div>
     </div>
 </div>
 
 <script>
-    // CONFIGURAÇÃO FIREBASE (Usando a sua existente)
+    // Firebase Configuração
     const firebaseConfig = {
         apiKey: "AIzaSyCTu2YNF6TXWGdjBtRrDW1dL5e5MoIPI4c",
         authDomain: "classroom-b14f4.firebaseapp.com",
@@ -89,9 +114,17 @@
     let calV, dataSelVisto = "";
 
     window.onload = () => {
-        calV = new FullCalendar.Calendar(document.getElementById('calendar-vistos'), {
-            initialView: 'dayGridMonth', locale: 'pt-br', contentHeight: 280,
-            dateClick: (i) => { dataSelVisto = i.dateStr; document.getElementById('label-data-visto').innerText = i.dateStr; document.getElementById('area-vistos-edit').classList.remove('hidden'); carregarTabelaVistos(); }
+        const calendarEl = document.getElementById('calendar-vistos');
+        calV = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'pt-br',
+            contentHeight: 350,
+            dateClick: (info) => {
+                dataSelVisto = info.dateStr;
+                document.getElementById('label-data-visto').innerText = "Data: " + info.dateStr.split('-').reverse().join('/');
+                document.getElementById('area-vistos-edit').classList.remove('hidden');
+                carregarTabelaVistos();
+            }
         });
         calV.render();
         carregarMenus();
@@ -103,6 +136,10 @@
         document.getElementById('sec-' + id).classList.remove('hidden');
         document.getElementById('nb-' + id).classList.add('active');
         if(id === 'vistos') { setTimeout(() => { calV.render(); calV.updateSize(); }, 200); }
+        if(id === 'siap') {
+            const t = document.getElementById('v-turma').value;
+            document.getElementById('siap-turma-info').innerHTML = `<span class="turma-badge">Turma: ${t}</span>`;
+        }
     }
 
     function carregarMenus() {
@@ -112,29 +149,35 @@
             Object.keys(turmas).sort().forEach(t => { opts += `<option value="${t}">${t}</option>`; });
             document.getElementById('v-turma').innerHTML = opts;
             document.getElementById('adj-turma').innerHTML = opts;
-            carregarTudoVistos();
+            carregarCalendarioVistos();
         });
     }
 
-    function carregarTudoVistos() {
+    function carregarCalendarioVistos() {
         const t = document.getElementById('v-turma').value;
         db.ref(`vistos/${t}`).on('value', snap => {
             calV.removeAllEvents();
-            calV.addEventSource(Object.keys(snap.val()||{}).map(d => ({start: d, display: 'background', color: 'red'})));
+            const datas = Object.keys(snap.val() || {});
+            calV.addEventSource(datas.map(d => ({ start: d, display: 'background', color: '#fda4af' })));
         });
     }
 
     async function carregarTabelaVistos() {
         const t = document.getElementById('v-turma').value;
-        const [sA, sV] = await Promise.all([db.ref('turmas/'+t).once('value'), db.ref(`vistos/${t}/${dataSelVisto}`).once('value')]);
-        const alunos = sA.val() || []; const marcados = sV.val() || {};
+        const [sAlunos, sVistos] = await Promise.all([
+            db.ref('turmas/' + t).once('value'),
+            db.ref(`vistos/${t}/${dataSelVisto}`).once('value')
+        ]);
+        const alunos = sAlunos.val() || [];
+        const marcados = sVistos.val() || {};
+
         document.getElementById('thr-vistos').innerHTML = `<th>Aluno</th>` + [1,2,3,4,5,6].map(n => `<th>${n}</th>`).join('');
         let html = '';
         alunos.forEach((nome, idx) => {
-            html += `<tr><td style="text-align:left">${nome}</td>`;
+            html += `<tr><td>${nome}</td>`;
             for(let v=1; v<=6; v++) {
                 let chk = (marcados[idx] && marcados[idx][v]) ? 'checked' : '';
-                html += `<td><input type="checkbox" class="chk-v" data-idx="${idx}" data-v="${v}" ${chk}></td>`;
+                html += `<td><input type="checkbox" style="width:20px;height:20px;" class="chk-v" data-idx="${idx}" data-v="${v}" ${chk}></td>`;
             }
             html += `</tr>`;
         });
@@ -145,54 +188,78 @@
         const t = document.getElementById('v-turma').value;
         let dados = {};
         document.querySelectorAll('.chk-v').forEach(el => {
-            const {idx, v} = el.dataset; if(!dados[idx]) dados[idx] = {}; dados[idx][v] = el.checked;
+            const {idx, v} = el.dataset;
+            if(!dados[idx]) dados[idx] = {};
+            dados[idx][v] = el.checked;
         });
-        db.ref(`vistos/${t}/${dataSelVisto}`).set(dados).then(() => alert("Salvo!"));
+        db.ref(`vistos/${t}/${dataSelVisto}`).set(dados).then(() => alert("✅ Vistos salvos com sucesso!"));
     }
 
     async function gerarRelatorio() {
         const t = document.getElementById('v-turma').value;
-        const [sA, sV] = await Promise.all([db.ref('turmas/'+t).once('value'), db.ref(`vistos/${t}`).once('value')]);
-        const alunos = sA.val() || []; const todos = sV.val() || {};
-        let res = alunos.map(n => ({ n, total: 0 }));
-        Object.values(todos).forEach(dia => {
-            Object.entries(dia).forEach(([idx, v]) => { if(res[idx]) res[idx].total += Object.values(v).filter(x => x === true).length; });
+        const [sAlunos, sVistos] = await Promise.all([
+            db.ref('turmas/' + t).once('value'),
+            db.ref(`vistos/${t}`).once('value')
+        ]);
+        const alunos = sAlunos.val() || [];
+        const todosVistos = sVistos.val() || {};
+
+        let resultados = alunos.map(nome => ({ nome, total: 0 }));
+        
+        Object.values(todosVistos).forEach(dia => {
+            Object.entries(dia).forEach(([idx, vistos]) => {
+                if(resultados[idx]) {
+                    resultados[idx].total += Object.values(vistos).filter(v => v === true).length;
+                }
+            });
         });
-        let teto = Math.max(...res.map(a => a.total), 1);
-        let h = `<table><tr><th>Aluno</th><th>Nota</th></tr>`;
-        res.forEach(a => {
-            let nota = ((a.total * 10) / teto).toFixed(1).replace('.', ',');
-            h += `<tr><td>${a.n}</td><td class="nota-final">${nota}</td></tr>`;
+
+        let maiorPontuacao = Math.max(...resultados.map(r => r.total), 1);
+        let html = `<table><tr><th>Aluno</th><th>Nota Final</th></tr>`;
+        
+        resultados.forEach(r => {
+            let nota = ((r.total * 10) / maiorPontuacao).toFixed(1).replace('.', ',');
+            html += `<tr><td>${r.nome}</td><td class="nota-final">${nota}</td></tr>`;
         });
-        document.getElementById('relatorio-final').innerHTML = h + `</table>`;
+
+        document.getElementById('relatorio-final').innerHTML = html + `</table>`;
         document.getElementById('relatorio-final').classList.remove('hidden');
     }
 
     function prepararInjecao() {
         const notas = document.querySelectorAll('.nota-final');
-        if (notas.length === 0) return alert("Gere as notas primeiro!");
+        if (notas.length === 0) return alert("⚠️ Primeiro clique em 'Calcular Médias'!");
 
-        let arrayNotas = [];
-        notas.forEach(n => arrayNotas.push(n.innerText));
+        let listaNotas = [];
+        notas.forEach(n => listaNotas.push(n.innerText));
 
-        // Este código será colado no Console do SIAP
+        // Código que será executado no Console do SIAP
         const scriptInjetor = `
-            (function() {
-                const notas = ${JSON.stringify(arrayNotas)};
-                const campos = document.querySelectorAll('input[type="text"][name^="n"]'); // Seleciona campos de nota
-                if(campos.length === 0) { 
-                    alert("Não encontrei os campos de nota. Verifique se está na tela de lançamento."); 
-                    return; 
-                }
-                notas.forEach((nota, i) => {
-                    if(campos[i]) {
-                        campos[i].value = nota;
-                        campos[i].dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                });
-                alert("✅ Notas injetadas com sucesso!");
-            })();
-        `;
+(function() {
+    const notasParaInjetar = ${JSON.stringify(listaNotas)};
+    const inputs = Array.from(document.querySelectorAll('input[type="text"]'))
+        .filter(i => !i.readOnly && i.style.display !== 'none' && i.offsetWidth > 0);
+    
+    if(inputs.length === 0) {
+        alert("❌ Erro: Não encontrei campos de nota nesta página do SIAP.");
+        return;
+    }
+
+    let confirmacao = confirm("Encontrei " + inputs.length + " campos. Deseja injetar as " + notasParaInjetar.length + " notas agora?");
+    
+    if(confirmacao) {
+        notasParaInjetar.forEach((nota, i) => {
+            if(inputs[i]) {
+                inputs[i].value = nota;
+                inputs[i].style.backgroundColor = "#dcfce7";
+                inputs[i].style.border = "2px solid #22c55e";
+                inputs[i].dispatchEvent(new Event('input', { bubbles: true }));
+                inputs[i].dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+        alert("✅ Notas injetadas! Não esqueça de SALVAR a página do SIAP.");
+    }
+})();`;
 
         const tmp = document.createElement("textarea");
         tmp.value = scriptInjetor;
@@ -202,14 +269,15 @@
         document.body.removeChild(tmp);
         
         document.getElementById('instrucoes-siap').classList.remove('hidden');
-        alert("✅ Código de injeção copiado!\n\nAgora siga as instruções na tela.");
+        alert("✅ Código copiado! Agora vá ao Console do SIAP (F12) e cole.");
     }
 
     function listarAlunosAdj() {
         const t = document.getElementById('adj-turma').value;
         db.ref('turmas/'+t).once('value', snap => {
-            let html = ''; (snap.val()||[]).forEach((nome, i) => {
-                html += `<div style="padding:5px; border-bottom:1px solid #eee;">${i+1}. ${nome}</div>`;
+            let html = '';
+            (snap.val() || []).forEach((n, i) => {
+                html += `<div style="padding:8px; border-bottom:1px solid #eee;">${i+1}. ${n}</div>`;
             });
             document.getElementById('lista-adj-alunos').innerHTML = html;
         });

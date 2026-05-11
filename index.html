@@ -10,34 +10,21 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
 
     <style>
-        :root {
-            --primary: #0f172a; --accent: #3b82f6; --bg: #f1f5f9; --white: #ffffff;
-            --text: #1e293b; --success: #10b981; --purple: #8b5cf6;
-        }
+        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f1f5f9; --white: #ffffff; --text: #1e293b; --purple: #8b5cf6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
-        
         nav { background: var(--white); padding: 10px; display: flex; gap: 10px; position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid #e2e8f0; overflow-x: auto; }
-        .nav-btn { background: #e2e8f0; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; white-space: nowrap; cursor: pointer; }
+        .nav-btn { background: #e2e8f0; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; }
         .nav-btn.active { background: var(--accent); color: white; }
-
         .container { padding: 15px; max-width: 950px; margin: 0 auto; }
         .card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .hidden { display: none; }
-
         .table-wrapper { overflow-x: auto; border-radius: 8px; border: 1px solid #ddd; background: white; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 10px; border: 1px solid #eee; text-align: center; }
-        
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        .btn { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-        .btn:hover { opacity: 0.9; }
+        .btn { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-siap { background: var(--purple); }
-        
         .turma-badge { background: #dbeafe; color: #1e40af; padding: 10px; border-radius: 8px; font-weight: bold; display: block; margin-bottom: 15px; text-align: center; border: 1px solid #3b82f6; }
-        .nota-final { font-weight: bold; color: #1e40af; font-size: 1.1em; }
-        
-        .box-aviso { background: #fffbeb; border: 1px solid #fef3c7; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 14px; line-height: 1.5; }
-        code { background: #eee; padding: 2px 5px; border-radius: 4px; font-family: monospace; font-weight: bold; }
+        .nota-final { font-weight: bold; color: #1e40af; }
     </style>
 </head>
 <body>
@@ -52,16 +39,12 @@
     <div id="sec-vistos" class="aba-content">
         <div class="card">
             <h3>Lançar Vistos</h3>
-            <select id="v-turma" onchange="carregarTudoVistos()"></select>
-            <div id='calendar-vistos' style="margin-top:15px; background: white; border-radius: 8px; padding: 5px;"></div>
-            
+            <select id="v-turma" onchange="carregarCalendario()" style="width:100%; padding:10px; border-radius:8px;"></select>
+            <div id='calendar-vistos' style="margin-top:15px;"></div>
             <div id="area-vistos-edit" class="hidden">
                 <div class="turma-badge" id="label-data-visto"></div>
                 <div class="table-wrapper">
-                    <table>
-                        <thead><tr id="thr-vistos"></tr></thead>
-                        <tbody id="tbody-vistos"></tbody>
-                    </table>
+                    <table><thead><tr id="thr-vistos"></tr></thead><tbody id="tbody-vistos"></tbody></table>
                 </div>
                 <button class="btn" onclick="salvarVistos()">💾 Salvar Vistos</button>
             </div>
@@ -70,19 +53,10 @@
 
     <div id="sec-siap" class="aba-content hidden">
         <div class="card">
-            <h3>Exportação Direta para o SIAP</h3>
+            <h3>Exportação SIAP</h3>
             <div id="siap-turma-info"></div>
-            <button class="btn" onclick="gerarRelatorio()">1. Calcular Notas do Período</button>
-            <button class="btn btn-siap" onclick="prepararInjecao()">2. Copiar Código Injetor</button>
-            
-            <div id="instrucoes-siap" class="box-aviso hidden">
-                <strong>🛠️ Como aplicar no SIAP:</strong><br>
-                1. No SIAP, abra a tela onde lança as notas.<br>
-                2. Aperte <code>F12</code> e clique em <strong>Console</strong>.<br>
-                3. Se aparecer o aviso de segurança, digite <code>allow pasting</code> e dê Enter.<br>
-                4. Agora <strong>Cole (Ctrl+V)</strong> o código e dê <strong>Enter</strong>.<br>
-                5. Aguarde as notas ficarem verdes e clique em <strong>Gravar</strong> no SIAP.
-            </div>
+            <button class="btn" onclick="gerarRelatorio()">1. Calcular Médias</button>
+            <button class="btn btn-siap" onclick="prepararInjecao()">2. Copiar Injetor (Sem Cabeçalho)</button>
         </div>
         <div id="relatorio-final" class="table-wrapper hidden"></div>
     </div>
@@ -90,14 +64,8 @@
     <div id="sec-ajustes" class="aba-content hidden">
         <div class="card">
             <h3>Lista de Alunos</h3>
-            <select id="adj-turma" onchange="listarAlunosAdj()"></select>
+            <select id="adj-turma" onchange="listarAlunosAdj()" style="width:100%; padding:10px; border-radius:8px;"></select>
             <div id="lista-adj-alunos" style="margin-top:15px;"></div>
-        </div>
-        <div class="card">
-            <h3>Cadastrar Nova Turma</h3>
-            <input type="text" id="n-turma-nome" placeholder="Ex: 9ºA Letramento Digital" style="margin-bottom:10px;">
-            <textarea id="n-turma-lista" rows="5" placeholder="Cole a lista de alunos (um por linha)"></textarea>
-            <button class="btn" onclick="criarTurma()">Criar Turma</button>
         </div>
     </div>
 </div>
@@ -121,7 +89,7 @@
             initialView: 'dayGridMonth', locale: 'pt-br', contentHeight: 350,
             dateClick: (info) => {
                 dataSelVisto = info.dateStr;
-                document.getElementById('label-data-visto').innerText = "Vistos do dia: " + info.dateStr.split('-').reverse().join('/');
+                document.getElementById('label-data-visto').innerText = "Data: " + info.dateStr.split('-').reverse().join('/');
                 document.getElementById('area-vistos-edit').classList.remove('hidden');
                 carregarTabelaVistos();
             }
@@ -136,29 +104,22 @@
         document.getElementById('sec-' + id).classList.remove('hidden');
         document.getElementById('nb-' + id).classList.add('active');
         if(id === 'vistos') { setTimeout(() => { calV.render(); calV.updateSize(); }, 200); }
-        if(id === 'siap') {
-            const t = document.getElementById('v-turma').value;
-            document.getElementById('siap-turma-info').innerHTML = `<span class="turma-badge">Turma Atual: ${t}</span>`;
-        }
     }
 
     function carregarMenus() {
         db.ref('turmas').on('value', snap => {
-            const turmas = snap.val() || {};
-            let opts = '';
-            Object.keys(turmas).sort().forEach(t => { opts += `<option value="${t}">${t}</option>`; });
+            let opts = ''; Object.keys(snap.val() || {}).sort().forEach(t => { opts += `<option value="${t}">${t}</option>`; });
             document.getElementById('v-turma').innerHTML = opts;
             document.getElementById('adj-turma').innerHTML = opts;
-            carregarTudoVistos();
+            carregarCalendario();
         });
     }
 
-    function carregarTudoVistos() {
+    function carregarCalendario() {
         const t = document.getElementById('v-turma').value;
         db.ref(`vistos/${t}`).on('value', snap => {
             calV.removeAllEvents();
-            const dias = Object.keys(snap.val() || {});
-            calV.addEventSource(dias.map(d => ({ start: d, display: 'background', color: '#3b82f6' })));
+            Object.keys(snap.val() || {}).forEach(d => calV.addEvent({ start: d, display: 'background', color: '#fda4af' }));
         });
     }
 
@@ -172,7 +133,7 @@
             html += `<tr><td style="text-align:left">${nome}</td>`;
             for(let v=1; v<=6; v++) {
                 let chk = (marcados[idx] && marcados[idx][v]) ? 'checked' : '';
-                html += `<td><input type="checkbox" style="transform:scale(1.5)" class="chk-v" data-idx="${idx}" data-v="${v}" ${chk}></td>`;
+                html += `<td><input type="checkbox" style="width:18px;height:18px;" class="chk-v" data-idx="${idx}" data-v="${v}" ${chk}></td>`;
             }
             html += `</tr>`;
         });
@@ -185,22 +146,22 @@
         document.querySelectorAll('.chk-v').forEach(el => {
             const {idx, v} = el.dataset; if(!dados[idx]) dados[idx] = {}; dados[idx][v] = el.checked;
         });
-        db.ref(`vistos/${t}/${dataSelVisto}`).set(dados).then(() => alert("✅ Vistos salvos!"));
+        db.ref(`vistos/${t}/${dataSelVisto}`).set(dados).then(() => alert("✅ Salvo!"));
     }
 
     async function gerarRelatorio() {
         const t = document.getElementById('v-turma').value;
         const [sA, sV] = await Promise.all([db.ref('turmas/'+t).once('value'), db.ref(`vistos/${t}`).once('value')]);
-        const alunos = sA.val() || []; const todosVistos = sV.val() || {};
-        let res = alunos.map(nome => ({ nome, total: 0 }));
-        Object.values(todosVistos).forEach(dia => {
+        const alunos = sA.val() || []; const todos = sV.val() || {};
+        let res = alunos.map(n => ({ n, total: 0 }));
+        Object.values(todos).forEach(dia => {
             Object.entries(dia).forEach(([idx, v]) => { if(res[idx]) res[idx].total += Object.values(v).filter(x => x === true).length; });
         });
-        let teto = Math.max(...res.map(r => r.total), 1);
+        let teto = Math.max(...res.map(a => a.total), 1);
         let h = `<table><tr><th>Aluno</th><th>Nota</th></tr>`;
-        res.forEach(r => {
-            let nota = ((r.total * 10) / teto).toFixed(1).replace('.', ',');
-            h += `<tr><td style="text-align:left">${r.nome}</td><td class="nota-final">${nota}</td></tr>`;
+        res.forEach(a => {
+            let nota = ((a.total * 10) / teto).toFixed(1).replace('.', ',');
+            h += `<tr><td style="text-align:left">${a.n}</td><td class="nota-final">${nota}</td></tr>`;
         });
         document.getElementById('relatorio-final').innerHTML = h + `</table>`;
         document.getElementById('relatorio-final').classList.remove('hidden');
@@ -215,39 +176,33 @@
 (function() {
     console.clear();
     const notas = ${JSON.stringify(lista)};
-    const inputs = Array.from(document.querySelectorAll('input[type="text"]'))
+    
+    // NOVIDADE: Busca apenas inputs que estão dentro de uma tabela (ignora o cabeçalho)
+    const inputs = Array.from(document.querySelectorAll('table input[type="text"]'))
         .filter(i => !i.readOnly && i.offsetParent !== null);
     
-    if(inputs.length === 0) return alert("Erro: Campos do SIAP não encontrados!");
+    if(inputs.length === 0) {
+        alert("Não achei campos de nota na tabela. Verifique se a lista de alunos está aberta.");
+        return;
+    }
 
-    if(confirm("Deseja injetar " + notas.length + " notas?")) {
+    if(confirm("Injetar " + notas.length + " notas na tabela? (Ignorando cabeçalho)")) {
         notas.forEach((n, i) => {
             if(inputs[i]) {
                 inputs[i].value = n;
                 inputs[i].style.backgroundColor = "#dcfce7";
-                inputs[i].style.border = "1px solid green";
                 inputs[i].dispatchEvent(new Event('change', { bubbles: true }));
             }
         });
-        alert("✅ Injeção concluída!");
+        alert("✅ Concluído! As notas do cabeçalho ficaram intactas.");
     }
 })();`;
 
         const tmp = document.createElement("textarea");
-        tmp.value = script;
-        document.body.appendChild(tmp);
-        tmp.select();
-        document.execCommand('copy');
+        tmp.value = script; document.body.appendChild(tmp);
+        tmp.select(); document.execCommand('copy');
         document.body.removeChild(tmp);
-        document.getElementById('instrucoes-siap').classList.remove('hidden');
-        alert("✅ Código copiado! Vá ao console do SIAP.");
-    }
-
-    function criarTurma() {
-        const n = document.getElementById('n-turma-nome').value.toUpperCase();
-        const l = document.getElementById('n-turma-lista').value.split('\n').map(x => x.trim()).filter(x => x.length > 2);
-        if(!n || l.length === 0) return alert("Preencha nome e lista!");
-        db.ref('turmas/'+n).set(l).then(() => { alert("Turma Criada!"); location.reload(); });
+        alert("✅ Código copiado! Agora use no console do SIAP.");
     }
 
     function listarAlunosAdj() {

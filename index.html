@@ -53,10 +53,10 @@
 
     <div id="sec-siap" class="aba-content hidden">
         <div class="card">
-            <h3>Exportação SIAP ÚLTIMA VERSÃO</h3>
+            <h3>Exportação SIAP - Versão Anti-Erro</h3>
             <div id="siap-turma-info"></div>
             <button class="btn" onclick="gerarRelatorio()">1. Calcular Médias</button>
-            <button class="btn btn-siap" onclick="prepararInjecao()">2. Copiar Injetor "Deep Scan"</button>
+            <button class="btn btn-siap" onclick="prepararInjecao()">2. Copiar Injetor "Força Bruta"</button>
         </div>
         <div id="relatorio-final" class="table-wrapper hidden"></div>
     </div>
@@ -71,7 +71,6 @@
 </div>
 
 <script>
-    // Configurações do Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCTu2YNF6TXWGdjBtRrDW1dL5e5MoIPI4c",
         authDomain: "classroom-b14f4.firebaseapp.com",
@@ -178,54 +177,42 @@
     console.clear();
     const notas = ${JSON.stringify(lista)};
     
-    // Função para achar campos mesmo dentro de iframes
-    function findInputs(doc) {
-        let found = Array.from(doc.querySelectorAll('input[type="text"]:not([readonly])'))
-            .filter(i => {
-                const style = window.getComputedStyle(i);
-                // Filtra apenas campos pequenos (notas) e ignora o cabeçalho gigante
-                return style.display !== 'none' && i.offsetWidth < 150 && i.offsetWidth > 10;
-            });
-            
-        // Se não achou na página principal, procura nos iframes
-        if (found.length === 0) {
-            const iframes = doc.querySelectorAll('iframe');
-            for (let f of iframes) {
-                try {
-                    let fInputs = findInputs(f.contentDocument || f.contentWindow.document);
-                    if (fInputs.length > 0) return fInputs;
-                } catch(e) {}
+    // Tenta encontrar inputs em qualquer lugar (inclusive frames)
+    function getAllInputs() {
+        let docs = [document];
+        document.querySelectorAll('iframe').forEach(f => { try { docs.push(f.contentDocument); } catch(e) {} });
+        
+        let inputs = [];
+        docs.forEach(d => {
+            if(!d) return;
+            let found = Array.from(d.querySelectorAll('input[type="text"]:not([readonly])'))
+                .filter(i => i.offsetWidth > 0 && i.offsetWidth < 120);
+            inputs = inputs.concat(found);
+        });
+        return inputs;
+    }
+
+    const campos = getAllInputs();
+    if(campos.length === 0) return alert("Não achei campos de nota. Verifique se a tela de lançamento está aberta.");
+
+    if(confirm("Injetar " + notas.length + " notas?")) {
+        notas.forEach((nota, i) => {
+            let input = campos[i];
+            if(input) {
+                input.focus();
+                // Simula a digitação para evitar o erro de 'length' do SIAP
+                input.value = ""; 
+                input.value = nota;
+                
+                // Dispara os eventos na ordem que o SIAP espera
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                input.dispatchEvent(new Event('blur', { bubbles: true }));
+                
+                input.style.backgroundColor = "#dcfce7";
             }
-        }
-        return found;
-    }
-
-    const campos = findInputs(document);
-    
-    if(campos.length === 0) {
-        return alert("❌ SIAP: Não encontrei os campos de nota. Tente clicar dentro da tabela de notas antes de colar.");
-    }
-
-    // Lógica para múltiplas colunas
-    let colunasPorAluno = confirm("Existem duas colunas de notas para cada aluno? (Ex: Parcial e Bimestral)") ? 2 : 1;
-    let alvo = 0;
-    if(colunasPorAluno === 2) {
-        alvo = parseInt(prompt("Injetar na coluna 1 ou 2?", "1")) - 1;
-    }
-
-    if(confirm("Encontrei " + (campos.length / colunasPorAluno) + " alunos. Injetar agora?")) {
-        let alunoIdx = 0;
-        for(let i = 0; i < campos.length; i += colunasPorAluno) {
-            let campoParaPreencher = campos[i + alvo];
-            if(campoParaPreencher && notas[alunoIdx]) {
-                campoParaPreencher.value = notas[alunoIdx];
-                campoParaPreencher.style.backgroundColor = "#dcfce7";
-                campoParaPreencher.dispatchEvent(new Event('change', { bubbles: true }));
-                campoParaPreencher.dispatchEvent(new Event('blur', { bubbles: true }));
-            }
-            alunoIdx++;
-        }
-        alert("✅ Injeção finalizada!");
+        });
+        alert("✅ Injeção concluída! O erro de 'length' foi contornado.");
     }
 })();`;
 
@@ -233,7 +220,7 @@
         tmp.value = script; document.body.appendChild(tmp);
         tmp.select(); document.execCommand('copy');
         document.body.removeChild(tmp);
-        alert("✅ Código copiado! Este novo injetor faz uma busca profunda no SIAP.");
+        alert("✅ Código Anti-Erro copiado!");
     }
 
     function listarAlunosAdj() {

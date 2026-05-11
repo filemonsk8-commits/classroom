@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classroom Pro | Prof. Eduardo</title>
+    <title>Connect Escolar | Prof. Eduardo</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
@@ -53,17 +53,17 @@
 
     <div id="sec-siap" class="aba-content hidden">
         <div class="card">
-            <h3>Exportação SIAP</h3>
+            <h3>Exportação SIAP ÚLTIMA VERSÃO</h3>
             <div id="siap-turma-info"></div>
             <button class="btn" onclick="gerarRelatorio()">1. Calcular Médias</button>
-            <button class="btn btn-siap" onclick="prepararInjecao()">2. Copiar Injetor (Sem Cabeçalho)</button>
+            <button class="btn btn-siap" onclick="prepararInjecao()">2. Copiar Injetor "Deep Scan"</button>
         </div>
         <div id="relatorio-final" class="table-wrapper hidden"></div>
     </div>
 
     <div id="sec-ajustes" class="aba-content hidden">
         <div class="card">
-            <h3>Lista de Alunos</h3>
+            <h3>Gerenciar Alunos</h3>
             <select id="adj-turma" onchange="listarAlunosAdj()" style="width:100%; padding:10px; border-radius:8px;"></select>
             <div id="lista-adj-alunos" style="margin-top:15px;"></div>
         </div>
@@ -71,6 +71,7 @@
 </div>
 
 <script>
+    // Configurações do Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCTu2YNF6TXWGdjBtRrDW1dL5e5MoIPI4c",
         authDomain: "classroom-b14f4.firebaseapp.com",
@@ -177,24 +178,54 @@
     console.clear();
     const notas = ${JSON.stringify(lista)};
     
-    // NOVIDADE: Busca apenas inputs que estão dentro de uma tabela (ignora o cabeçalho)
-    const inputs = Array.from(document.querySelectorAll('table input[type="text"]'))
-        .filter(i => !i.readOnly && i.offsetParent !== null);
-    
-    if(inputs.length === 0) {
-        alert("Não achei campos de nota na tabela. Verifique se a lista de alunos está aberta.");
-        return;
+    // Função para achar campos mesmo dentro de iframes
+    function findInputs(doc) {
+        let found = Array.from(doc.querySelectorAll('input[type="text"]:not([readonly])'))
+            .filter(i => {
+                const style = window.getComputedStyle(i);
+                // Filtra apenas campos pequenos (notas) e ignora o cabeçalho gigante
+                return style.display !== 'none' && i.offsetWidth < 150 && i.offsetWidth > 10;
+            });
+            
+        // Se não achou na página principal, procura nos iframes
+        if (found.length === 0) {
+            const iframes = doc.querySelectorAll('iframe');
+            for (let f of iframes) {
+                try {
+                    let fInputs = findInputs(f.contentDocument || f.contentWindow.document);
+                    if (fInputs.length > 0) return fInputs;
+                } catch(e) {}
+            }
+        }
+        return found;
     }
 
-    if(confirm("Injetar " + notas.length + " notas na tabela? (Ignorando cabeçalho)")) {
-        notas.forEach((n, i) => {
-            if(inputs[i]) {
-                inputs[i].value = n;
-                inputs[i].style.backgroundColor = "#dcfce7";
-                inputs[i].dispatchEvent(new Event('change', { bubbles: true }));
+    const campos = findInputs(document);
+    
+    if(campos.length === 0) {
+        return alert("❌ SIAP: Não encontrei os campos de nota. Tente clicar dentro da tabela de notas antes de colar.");
+    }
+
+    // Lógica para múltiplas colunas
+    let colunasPorAluno = confirm("Existem duas colunas de notas para cada aluno? (Ex: Parcial e Bimestral)") ? 2 : 1;
+    let alvo = 0;
+    if(colunasPorAluno === 2) {
+        alvo = parseInt(prompt("Injetar na coluna 1 ou 2?", "1")) - 1;
+    }
+
+    if(confirm("Encontrei " + (campos.length / colunasPorAluno) + " alunos. Injetar agora?")) {
+        let alunoIdx = 0;
+        for(let i = 0; i < campos.length; i += colunasPorAluno) {
+            let campoParaPreencher = campos[i + alvo];
+            if(campoParaPreencher && notas[alunoIdx]) {
+                campoParaPreencher.value = notas[alunoIdx];
+                campoParaPreencher.style.backgroundColor = "#dcfce7";
+                campoParaPreencher.dispatchEvent(new Event('change', { bubbles: true }));
+                campoParaPreencher.dispatchEvent(new Event('blur', { bubbles: true }));
             }
-        });
-        alert("✅ Concluído! As notas do cabeçalho ficaram intactas.");
+            alunoIdx++;
+        }
+        alert("✅ Injeção finalizada!");
     }
 })();`;
 
@@ -202,7 +233,7 @@
         tmp.value = script; document.body.appendChild(tmp);
         tmp.select(); document.execCommand('copy');
         document.body.removeChild(tmp);
-        alert("✅ Código copiado! Agora use no console do SIAP.");
+        alert("✅ Código copiado! Este novo injetor faz uma busca profunda no SIAP.");
     }
 
     function listarAlunosAdj() {

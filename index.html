@@ -26,11 +26,11 @@
         .card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .hidden { display: none; }
 
-        /* Cores dos Calendários */
+        /* Estilo Calendários */
         .fc-daygrid-day.has-visto { background-color: rgba(239, 68, 68, 0.1) !important; }
         .fc-daygrid-day.has-conteudo { background-color: rgba(59, 130, 246, 0.1) !important; }
 
-        .table-wrapper { overflow-x: auto; border-radius: 8px; border: 1px solid #ddd; background: white; }
+        .table-wrapper { overflow-x: auto; border-radius: 8px; border: 1px solid #ddd; background: white; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 10px; border: 1px solid #eee; text-align: center; }
         td:first-child { text-align: left; min-width: 180px; font-weight: 500; }
@@ -38,15 +38,14 @@
         /* Ajustes de Ordem */
         .aluno-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-bottom: 1px solid #eee; }
         .move-btns { display: flex; gap: 4px; }
-        .move-btn { background: #f1f5f9; border: 1px solid #ccc; padding: 2px 8px; border-radius: 4px; font-size: 14px; font-weight: bold; }
-        .move-btn:hover { background: #e2e8f0; }
-
+        .move-btn { background: #f1f5f9; border: 1px solid #ccc; padding: 4px 8px; border-radius: 4px; font-size: 14px; font-weight: bold; }
+        
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
         .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 10px; }
         .btn-success { background: var(--success); }
-        .btn-red { background: var(--danger); }
         
-        .turma-badge { background: #dbeafe; color: #1e40af; padding: 8px 15px; border-radius: 8px; font-weight: bold; display: block; margin-bottom: 15px; text-align: center; border: 1px solid #3b82f6; }
+        .turma-badge { background: #dbeafe; color: #1e40af; padding: 10px; border-radius: 8px; font-weight: bold; display: block; margin-bottom: 15px; text-align: center; border: 1px solid #3b82f6; }
+        .nota-destaque { font-weight: bold; color: blue; font-size: 1.1em; }
     </style>
 </head>
 <body>
@@ -66,7 +65,7 @@
             <div id='calendar-vistos' style="margin-top:15px; background: white;"></div>
             <div id="area-vistos-edit" class="hidden">
                 <div style="background:#fef2f2; padding:10px; border-radius:8px; margin: 10px 0; border: 1px solid #fecaca;">
-                    <strong>Editando Dia:</strong> <span id="label-data-visto"></span>
+                    <strong>Data:</strong> <span id="label-data-visto"></span>
                 </div>
                 <div id="v-headers" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:5px; margin-bottom:15px;"></div>
                 <div class="table-wrapper">
@@ -86,9 +85,9 @@
             <select id="c-turma-select" onchange="carregarTudoConteudos()"></select>
             <div id='calendar-conteudos' style="margin-top:15px; background: white; margin-bottom: 15px;"></div>
             <input type="date" id="c-data">
-            <textarea id="c-texto" rows="3" placeholder="Escreva o conteúdo trabalhado..." style="margin-top:10px;"></textarea>
-            <div id="c-replicar" style="margin: 10px 0; font-size: 11px; color: #64748b;"></div>
-            <button class="btn" onclick="salvarConteudo()">Salvar no Diário</button>
+            <textarea id="c-texto" rows="3" placeholder="O que foi ensinado hoje?" style="margin-top:10px;"></textarea>
+            <div id="c-replicar" style="margin: 10px 0; font-size: 11px;"></div>
+            <button class="btn" onclick="salvarConteudo()">Salvar Conteúdo</button>
         </div>
         <div class="card">
             <h4>Aulas Registradas</h4>
@@ -98,31 +97,34 @@
 
     <div id="sec-siap" class="aba-content hidden">
         <div class="card">
-            <h3>Fechamento SIAP</h3>
+            <h3>Fechamento de Notas</h3>
             <div id="siap-turma-info"></div>
-            <button class="btn" onclick="gerarRelatorio()">1. Calcular Notas</button>
+            <button class="btn" onclick="gerarRelatorio()">1. Gerar Notas</button>
             <button class="btn btn-success" onclick="exportarParaSIAP()">2. Copiar Notas para o SIAP</button>
+            <p style="font-size: 11px; color: #666; margin-top: 10px; text-align: center;">
+                * Selecione a primeira célula de nota no SIAP e dê Ctrl+V.
+            </p>
         </div>
         <div id="relatorio-final" class="table-wrapper hidden"></div>
     </div>
 
     <div id="sec-ajustes" class="aba-content hidden">
         <div class="card">
-            <h3>Reordenar Alunos (Ordem SIAP)</h3>
+            <h3>Organizar Alunos (Ordem SIAP)</h3>
             <select id="adj-turma" onchange="listarAlunosAdj()"></select>
             <div id="lista-adj-alunos" style="margin-top:15px;"></div>
         </div>
         <div class="card">
             <h3>Nova Turma</h3>
-            <input type="text" id="nova-turma-nome" placeholder="NOME DA TURMA (Ex: 9º ANO A)">
-            <textarea id="nova-turma-lista" rows="3" placeholder="Cole a lista de alunos (um por linha)..."></textarea>
+            <input type="text" id="nova-turma-nome" placeholder="NOME DA TURMA">
+            <textarea id="nova-turma-lista" rows="3" placeholder="Nomes dos alunos..."></textarea>
             <button class="btn" onclick="criarTurma()">Criar Turma</button>
         </div>
     </div>
 </div>
 
 <script>
-    // CONFIGURAÇÃO FIREBASE
+    // FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyCTu2YNF6TXWGdjBtRrDW1dL5e5MoIPI4c",
         authDomain: "classroom-b14f4.firebaseapp.com",
@@ -137,9 +139,6 @@
     let calV, calC, dataSelVisto = "";
 
     window.onload = () => {
-        const hoje = new Date().toISOString().split('T')[0];
-        document.getElementById('c-data').value = hoje;
-
         calV = new FullCalendar.Calendar(document.getElementById('calendar-vistos'), {
             initialView: 'dayGridMonth', locale: 'pt-br', contentHeight: 280,
             dateClick: (i) => { 
@@ -149,15 +148,10 @@
                 carregarTabelaVistos(); 
             }
         });
-
         calC = new FullCalendar.Calendar(document.getElementById('calendar-conteudos'), {
             initialView: 'dayGridMonth', locale: 'pt-br', contentHeight: 280,
-            dateClick: (i) => { 
-                document.getElementById('c-data').value = i.dateStr; 
-                listarHistoricoConteudo(i.dateStr); 
-            }
+            dateClick: (i) => { document.getElementById('c-data').value = i.dateStr; listarHistoricoConteudo(i.dateStr); }
         });
-
         calV.render(); calC.render();
         carregarMenus();
     };
@@ -167,12 +161,11 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('sec-' + id).classList.remove('hidden');
         document.getElementById('nb-' + id).classList.add('active');
-        
         if(id === 'vistos') { setTimeout(() => { calV.render(); calV.updateSize(); }, 200); }
         if(id === 'conteudos') { setTimeout(() => { calC.render(); calC.updateSize(); }, 200); }
         if(id === 'siap') {
             const t = document.getElementById('v-turma').value;
-            document.getElementById('siap-turma-info').innerHTML = `<span class="turma-badge">Fechando Notas: ${t}</span>`;
+            document.getElementById('siap-turma-info').innerHTML = `<span class="turma-badge">Turma: ${t}</span>`;
         }
     }
 
@@ -182,12 +175,12 @@
             let opts = ''; let checks = '';
             Object.keys(turmas).sort().forEach(t => {
                 opts += `<option value="${t}">${t}</option>`;
-                checks += `<label style="display:inline-block; margin-right:8px;"><input type="checkbox" class="rep-check" value="${t}"> ${t}</label>`;
+                checks += `<label><input type="checkbox" class="rep-check" value="${t}"> ${t}</label> `;
             });
             document.getElementById('v-turma').innerHTML = opts;
             document.getElementById('c-turma-select').innerHTML = opts;
             document.getElementById('adj-turma').innerHTML = opts;
-            document.getElementById('c-replicar').innerHTML = "Replicar para: " + checks;
+            document.getElementById('c-replicar').innerHTML = "Replicar: " + checks;
             carregarTudoVistos(); carregarTudoConteudos();
         });
     }
@@ -205,10 +198,8 @@
         const t = document.getElementById('v-turma').value;
         const [sA, sV, sH] = await Promise.all([db.ref('turmas/'+t).once('value'), db.ref(`vistos/${t}/${dataSelVisto}`).once('value'), db.ref(`headers/${t}`).once('value')]);
         const alunos = sA.val() || []; const marcados = sV.val() || {}; const heads = sH.val() || {};
-        
-        let hHtml = ''; for(let i=1; i<=6; i++) hHtml += `<input type="text" id="h${i}" placeholder="Título ${i}" value="${heads['h'+i]||''}" onchange="salvarHeaders()">`;
+        let hHtml = ''; for(let i=1; i<=6; i++) hHtml += `<input type="text" id="h${i}" placeholder="H${i}" value="${heads['h'+i]||''}" onchange="salvarHeaders()">`;
         document.getElementById('v-headers').innerHTML = hHtml;
-        
         document.getElementById('thr-vistos').innerHTML = `<th>Aluno</th>` + [1,2,3,4,5,6].map(n => `<th>${n}</th>`).join('');
         let html = '';
         alunos.forEach((nome, idx) => {
@@ -228,7 +219,7 @@
         document.querySelectorAll('.chk-v').forEach(el => {
             const {idx, v} = el.dataset; if(!dados[idx]) dados[idx] = {}; dados[idx][v] = el.checked;
         });
-        db.ref(`vistos/${t}/${dataSelVisto}`).set(dados).then(() => alert("✅ Vistos do dia salvos!"));
+        db.ref(`vistos/${t}/${dataSelVisto}`).set(dados).then(() => alert("✅ Salvo!"));
     }
 
     function salvarHeaders() {
@@ -241,8 +232,7 @@
     function carregarTudoConteudos() {
         const t = document.getElementById('c-turma-select').value;
         db.ref(`diarios/${t}`).on('value', snap => {
-            const itens = snap.val() || {};
-            const datas = [...new Set(Object.values(itens).map(i => i.data))];
+            const datas = [...new Set(Object.values(snap.val()||{}).map(i => i.data))];
             calC.removeAllEvents();
             calC.addEventSource(datas.map(d => ({start: d, display: 'background', classNames: ['has-conteudo']})));
             listarHistoricoConteudo();
@@ -255,26 +245,24 @@
             let html = '';
             Object.entries(snap.val()||{}).reverse().forEach(([id, obj]) => {
                 if(!filtro || obj.data === filtro) {
-                    html += `<div style="padding:10px; border-bottom:1px solid #eee; font-size:13px;">
-                        <span style="color:#3b82f6; font-weight:bold">${obj.data.split('-').reverse().join('/')}:</span> ${obj.conteudo}
-                    </div>`;
+                    html += `<div style="padding:10px; border-bottom:1px solid #eee; font-size:13px;"><b>${obj.data.split('-').reverse().join('/')}:</b> ${obj.conteudo}</div>`;
                 }
             });
-            document.getElementById('lista-historico-c').innerHTML = html || "<p style='padding:10px'>Nenhum registo nesta data.</p>";
+            document.getElementById('lista-historico-c').innerHTML = html || "Vazio.";
         });
     }
 
     function salvarConteudo() {
         const txt = document.getElementById('c-texto').value;
         const data = document.getElementById('c-data').value;
-        if(!txt) return alert("Escreva um conteúdo!");
-        const turmas = Array.from(document.querySelectorAll('.rep-check:checked')).map(c => c.value);
-        turmas.push(document.getElementById('c-turma-select').value);
-        [...new Set(turmas)].forEach(t => db.ref(`diarios/${t}`).push({ data, conteudo: txt }));
-        alert("✅ Conteúdo guardado!"); document.getElementById('c-texto').value = "";
+        if(!txt) return;
+        const tPrincipal = document.getElementById('c-turma-select').value;
+        const outras = Array.from(document.querySelectorAll('.rep-check:checked')).map(c => c.value);
+        [tPrincipal, ...outras].forEach(t => db.ref(`diarios/${t}`).push({ data, conteudo: txt }));
+        alert("✅ Gravado!"); document.getElementById('c-texto').value = "";
     }
 
-    // --- AJUSTES (ORDEM SIAP) ---
+    // --- AJUSTES ---
     function listarAlunosAdj() {
         const t = document.getElementById('adj-turma').value;
         db.ref('turmas/'+t).once('value', snap => {
@@ -282,7 +270,7 @@
                 html += `<div class="aluno-item"><span>${i+1}. ${nome}</span><div class="move-btns">
                     <button class="move-btn" onclick="moverAluno('${t}',${i},-1)">↑</button>
                     <button class="move-btn" onclick="moverAluno('${t}',${i},1)">↓</button>
-                    <button class="move-btn" style="background:#fed7d7; color:#c53030" onclick="irProFim('${t}',${i})">⤓</button>
+                    <button class="move-btn" style="background:#ffdada" onclick="irProFim('${t}',${i})">⤓</button>
                 </div></div>`;
             });
             document.getElementById('lista-adj-alunos').innerHTML = html;
@@ -301,53 +289,53 @@
         });
     }
 
-    // --- SIAP ---
+    // --- SIAP (CORREÇÃO DE CÓPIA) ---
     async function gerarRelatorio() {
         const t = document.getElementById('v-turma').value;
         const [sA, sV] = await Promise.all([db.ref('turmas/'+t).once('value'), db.ref(`vistos/${t}`).once('value')]);
         const alunos = sA.val() || []; const todos = sV.val() || {};
         let res = alunos.map(n => ({ n, total: 0 }));
-        
         Object.values(todos).forEach(dia => {
             Object.entries(dia).forEach(([idx, v]) => { if(res[idx]) res[idx].total += Object.values(v).filter(x => x === true).length; });
         });
-        
         let teto = Math.max(...res.map(a => a.total), 1);
-        let h = `<table><tr><th>Aluno</th><th>Vistos</th><th>Nota</th></tr>`;
+        let h = `<table id="tabela-siap"><tr><th>Aluno</th><th>Nota</th></tr>`;
         res.forEach(a => {
             let nota = ((a.total * 10) / teto).toFixed(1).replace('.', ',');
-            h += `<tr><td>${a.n}</td><td>${a.total}</td><td style="font-weight:bold; color:blue">${nota}</td></tr>`;
+            h += `<tr><td>${a.n}</td><td class="nota-final">${nota}</td></tr>`;
         });
         document.getElementById('relatorio-final').innerHTML = h + `</table>`;
         document.getElementById('relatorio-final').classList.remove('hidden');
     }
 
     function exportarParaSIAP() {
-        let txt = ""; 
-        let linhas = document.querySelectorAll('#relatorio-final tr');
-        if(linhas.length <= 1) return alert("Clique em 'Calcular Totais' primeiro!");
-        
-        linhas.forEach((tr, i) => { 
-            if(i > 0) {
-                // Copia apenas a coluna da nota (última célula)
-                txt += `${tr.cells[2].innerText}\n`; 
-            }
+        const notas = document.querySelectorAll('.nota-final');
+        if (notas.length === 0) return alert("⚠️ Gere o relatório primeiro!");
+
+        // Formata os dados com quebra de linha compatível (CRLF) para planilhas
+        let textoParaCopiar = "";
+        notas.forEach((td) => {
+            textoParaCopiar += td.innerText + "\r\n";
         });
-        
-        navigator.clipboard.writeText(txt).then(() => {
-            alert("✅ Notas copiadas!\n\nAgora vá ao SIAP, clique na primeira célula de nota e cole (Ctrl+V).");
-        });
+
+        // Tenta copiar usando a técnica de área de texto temporária (mais robusta para sistemas antigos)
+        const areaTemporaria = document.createElement("textarea");
+        areaTemporaria.value = textoParaCopiar;
+        document.body.appendChild(areaTemporaria);
+        areaTemporaria.select();
+        try {
+            document.execCommand('copy');
+            alert("✅ Notas copiadas com sucesso!\n\nNo SIAP, clique na primeira nota e use Ctrl+V.");
+        } catch (err) {
+            alert("Erro ao copiar automaticamente. Selecione as notas e copie manualmente.");
+        }
+        document.body.removeChild(areaTemporaria);
     }
 
     function criarTurma() {
         const n = document.getElementById('nova-turma-nome').value.toUpperCase();
         const l = document.getElementById('nova-turma-lista').value.split('\n').map(x => x.trim()).filter(x => x.length > 2);
-        if(!n || l.length === 0) return alert("Preencha o nome e a lista!");
-        db.ref('turmas/'+n).set(l).then(() => {
-            alert("Turma Criada!");
-            document.getElementById('nova-turma-nome').value = "";
-            document.getElementById('nova-turma-lista').value = "";
-        });
+        db.ref('turmas/'+n).set(l).then(() => alert("Criada!"));
     }
 </script>
 </body>

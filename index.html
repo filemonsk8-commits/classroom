@@ -23,7 +23,6 @@
         th, td { padding: 10px; border: 1px solid #eee; text-align: center; }
         .btn { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-siap { background: var(--purple); }
-        .turma-badge { background: #dbeafe; color: #1e40af; padding: 10px; border-radius: 8px; font-weight: bold; display: block; margin-bottom: 15px; text-align: center; border: 1px solid #3b82f6; }
         .nota-final { font-weight: bold; color: #1e40af; }
     </style>
 </head>
@@ -32,17 +31,16 @@
 <nav>
     <button onclick="mudarAba('vistos')" class="nav-btn active" id="nb-vistos">📅 Vistos</button>
     <button onclick="mudarAba('siap')" class="nav-btn" id="nb-siap">📊 SIAP</button>
-    <button onclick="mudarAba('ajustes')" class="nav-btn" id="nb-ajustes">⚙️ Ajustes</button>
 </nav>
 
 <div class="container">
     <div id="sec-vistos" class="aba-content">
         <div class="card">
             <h3>Lançar Vistos</h3>
-            <select id="v-turma" onchange="carregarCalendario()" style="width:100%; padding:10px; border-radius:8px;"></select>
-            <div id='calendar-vistos' style="margin-top:15px;"></div>
+            <select id="v-turma" onchange="carregarCalendario()" style="width:100%; padding:10px; border-radius:8px; margin-bottom:10px;"></select>
+            <div id='calendar-vistos'></div>
             <div id="area-vistos-edit" class="hidden">
-                <div class="turma-badge" id="label-data-visto"></div>
+                <h4 id="label-data-visto" style="margin-top:20px; color:var(--accent);"></h4>
                 <div class="table-wrapper">
                     <table><thead><tr id="thr-vistos"></tr></thead><tbody id="tbody-vistos"></tbody></table>
                 </div>
@@ -53,20 +51,11 @@
 
     <div id="sec-siap" class="aba-content hidden">
         <div class="card">
-            <h3>Exportação SIAP - Versão Anti-Erro</h3>
-            <div id="siap-turma-info"></div>
+            <h3>Exportação SIAP - Modo Alvo</h3>
             <button class="btn" onclick="gerarRelatorio()">1. Calcular Médias</button>
-            <button class="btn btn-siap" onclick="prepararInjecao()">2. Copiar Injetor "Força Bruta"</button>
+            <button class="btn btn-siap" onclick="prepararInjecaoAlvo()">2. Copiar Injetor "Clica e Cola"</button>
         </div>
         <div id="relatorio-final" class="table-wrapper hidden"></div>
-    </div>
-
-    <div id="sec-ajustes" class="aba-content hidden">
-        <div class="card">
-            <h3>Gerenciar Alunos</h3>
-            <select id="adj-turma" onchange="listarAlunosAdj()" style="width:100%; padding:10px; border-radius:8px;"></select>
-            <div id="lista-adj-alunos" style="margin-top:15px;"></div>
-        </div>
     </div>
 </div>
 
@@ -110,7 +99,6 @@
         db.ref('turmas').on('value', snap => {
             let opts = ''; Object.keys(snap.val() || {}).sort().forEach(t => { opts += `<option value="${t}">${t}</option>`; });
             document.getElementById('v-turma').innerHTML = opts;
-            document.getElementById('adj-turma').innerHTML = opts;
             carregarCalendario();
         });
     }
@@ -133,7 +121,7 @@
             html += `<tr><td style="text-align:left">${nome}</td>`;
             for(let v=1; v<=6; v++) {
                 let chk = (marcados[idx] && marcados[idx][v]) ? 'checked' : '';
-                html += `<td><input type="checkbox" style="width:18px;height:18px;" class="chk-v" data-idx="${idx}" data-v="${v}" ${chk}></td>`;
+                html += `<td><input type="checkbox" class="chk-v" data-idx="${idx}" data-v="${v}" ${chk}></td>`;
             }
             html += `</tr>`;
         });
@@ -167,68 +155,52 @@
         document.getElementById('relatorio-final').classList.remove('hidden');
     }
 
-    function prepararInjecao() {
+    function prepararInjecaoAlvo() {
         const notas = document.querySelectorAll('.nota-final');
         if (notas.length === 0) return alert("⚠️ Calcule as notas primeiro!");
         let lista = Array.from(notas).map(n => n.innerText);
 
         const script = `
 (function() {
-    console.clear();
     const notas = ${JSON.stringify(lista)};
-    
-    // Tenta encontrar inputs em qualquer lugar (inclusive frames)
-    function getAllInputs() {
-        let docs = [document];
-        document.querySelectorAll('iframe').forEach(f => { try { docs.push(f.contentDocument); } catch(e) {} });
-        
-        let inputs = [];
-        docs.forEach(d => {
-            if(!d) return;
-            let found = Array.from(d.querySelectorAll('input[type="text"]:not([readonly])'))
-                .filter(i => i.offsetWidth > 0 && i.offsetWidth < 120);
-            inputs = inputs.concat(found);
-        });
+    alert("MODO ALVO ATIVADO!\\n\\n1. Os campos editáveis ficaram AMARELOS.\\n2. CLIQUE no primeiro campo de nota do Aluno 1.\\n3. O sistema preencherá o restante automaticamente.");
+
+    function getAllInputs(doc) {
+        let inputs = Array.from(doc.querySelectorAll('input[type="text"]:not([readonly])'));
+        doc.querySelectorAll('iframe').forEach(f => { try { inputs = inputs.concat(getAllInputs(f.contentDocument)); } catch(e) {} });
         return inputs;
     }
 
-    const campos = getAllInputs();
-    if(campos.length === 0) return alert("Não achei campos de nota. Verifique se a tela de lançamento está aberta.");
+    const campos = getAllInputs(document);
+    campos.forEach(c => {
+        c.style.border = "3px solid yellow";
+        c.onclick = function() {
+            if(!confirm("Iniciar preenchimento a partir deste campo?")) return;
+            
+            // Remove os destaques e o clique
+            campos.forEach(el => { el.style.border = ""; el.onclick = null; });
 
-    if(confirm("Injetar " + notas.length + " notas?")) {
-        notas.forEach((nota, i) => {
-            let input = campos[i];
-            if(input) {
-                input.focus();
-                // Simula a digitação para evitar o erro de 'length' do SIAP
-                input.value = ""; 
-                input.value = nota;
-                
-                // Dispara os eventos na ordem que o SIAP espera
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-                input.dispatchEvent(new Event('blur', { bubbles: true }));
-                
-                input.style.backgroundColor = "#dcfce7";
-            }
-        });
-        alert("✅ Injeção concluída! O erro de 'length' foi contornado.");
-    }
+            let startIdx = campos.indexOf(this);
+            notas.forEach((n, i) => {
+                let target = campos[startIdx + i];
+                if(target) {
+                    target.value = n;
+                    target.dispatchEvent(new Event('input', { bubbles: true }));
+                    target.dispatchEvent(new Event('change', { bubbles: true }));
+                    target.dispatchEvent(new Event('blur', { bubbles: true }));
+                    target.style.backgroundColor = "#dcfce7";
+                }
+            });
+            alert("✅ Notas injetadas com sucesso!");
+        };
+    });
 })();`;
 
         const tmp = document.createElement("textarea");
         tmp.value = script; document.body.appendChild(tmp);
         tmp.select(); document.execCommand('copy');
         document.body.removeChild(tmp);
-        alert("✅ Código Anti-Erro copiado!");
-    }
-
-    function listarAlunosAdj() {
-        const t = document.getElementById('adj-turma').value;
-        db.ref('turmas/'+t).once('value', s => {
-            let h = ''; (s.val()||[]).forEach((n, i) => h += `<div style="padding:5px; border-bottom:1px solid #eee;">\${i+1}. \${n}</div>`);
-            document.getElementById('lista-adj-alunos').innerHTML = h;
-        });
+        alert("✅ Código copiado! No SIAP, clique no console, cole e siga as instruções na tela.");
     }
 </script>
 </body>
